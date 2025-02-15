@@ -7,8 +7,13 @@
 
 import UIKit
 
-class MyPillsViewController: UIViewController {
+class MyPillsViewController: UIViewController, WeeklyCalendarViewDelegate {
     // MARK: - Public Properties
+    lazy var weeklyCalendarView: WeeklyCalendarView = {
+        let view = WeeklyCalendarView()
+        return view
+    }()
+    
     lazy var addPillButton: UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "plus")
@@ -21,19 +26,14 @@ class MyPillsViewController: UIViewController {
     }()
     
     // MARK: - Private Properties
-    
-    // MARK: - Initializers
-    
+    private var selectedDate: Date = Date()
+        
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
     }
-    
-    // MARK: - Overrides Methods
-    
-    // MARK: - Navigation
-    
+            
     // MARK: - IB Actions
     @objc
     private func didTapAddPillButton() {
@@ -45,8 +45,9 @@ class MyPillsViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
+        weeklyCalendarView.delegate = self
         
-        [addPillButton].forEach { view in
+        [weeklyCalendarView, addPillButton].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -56,13 +57,23 @@ class MyPillsViewController: UIViewController {
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
+            weeklyCalendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            weeklyCalendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            weeklyCalendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            weeklyCalendarView.heightAnchor.constraint(equalToConstant: 70),
+            weeklyCalendarView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
             addPillButton.widthAnchor.constraint(equalToConstant: 80),
             addPillButton.heightAnchor.constraint(equalToConstant: 80),
             addPillButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            addPillButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30)
+            addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
+    
+    func didSelectDate(_ date: Date) {
+        selectedDate = date
+    }
+    
     
     // MARK: - UITableViewDataSource
     
