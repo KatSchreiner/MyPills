@@ -8,9 +8,21 @@
 import UIKit
 
 extension Date {
-    static func datesForWeekContaining(_ date: Date) -> [Date] {
+    static func datesForWeek(from date: Date) -> [Date] {
+        var dates: [Date] = []
+        
         let calendar = Calendar.current
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date))!
-        return (0..<7).map { calendar.date(byAdding: .day, value: $0, to: startOfWeek)! }
+        
+        guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)) else {
+            return dates
+        }
+        
+        for day in 0..<7 {
+            if let date = calendar.date(byAdding: .day, value: day, to: startOfWeek) {
+                dates.append(date)
+            }
+        }
+        
+        return dates
     }
 }

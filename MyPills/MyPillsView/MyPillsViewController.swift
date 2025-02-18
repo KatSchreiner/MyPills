@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MyPillsViewController: UIViewController, WeeklyCalendarViewDelegate {
+class MyPillsViewController: UIViewController {
     // MARK: - Public Properties
     lazy var weeklyCalendarView: WeeklyCalendarView = {
         let view = WeeklyCalendarView()
@@ -45,6 +45,7 @@ class MyPillsViewController: UIViewController, WeeklyCalendarViewDelegate {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
+        
         weeklyCalendarView.delegate = self
         
         [weeklyCalendarView, addPillButton].forEach { view in
@@ -69,19 +70,19 @@ class MyPillsViewController: UIViewController, WeeklyCalendarViewDelegate {
             addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
-    
+}
+
+// MARK: - WeeklyCalendarViewDelegate
+extension MyPillsViewController: WeeklyCalendarViewDelegate {
     func didSelectDate(_ date: Date) {
         selectedDate = date
     }
-    
-    
-    // MARK: - UITableViewDataSource
-    
-    // MARK: – UITableViewDelegate
-    
-    // MARK: - UICollectionViewDataSource
-    
-    // MARK: – UICollectionViewDelegate
-
 }
 
+// MARK: - UITableViewDataSource
+
+// MARK: – UITableViewDelegate
+
+// MARK: - UICollectionViewDataSource
+
+// MARK: – UICollectionViewDelegate
