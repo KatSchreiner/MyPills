@@ -31,6 +31,7 @@ class WeeklyCalendarView: UIView {
     // MARK: - Private Properties
     private var dates: [Date] = []
     private var currentDate: Date = Date()
+    private var selectedDate: Date?
     
     // MARK: - Overrides Methods
     override init(frame: CGRect) {
@@ -103,18 +104,24 @@ extension WeeklyCalendarView: UICollectionViewDataSource {
         
         let today = Calendar.current.startOfDay(for: Date())
         
+        configureCellAppearance(cell, for: date, today: today)
+        
+        return cell
+    }
+    
+    private func configureCellAppearance(_ cell: CalendarDayCell, for date: Date, today: Date) {
         if Calendar.current.isDate(date, inSameDayAs: today) {
-            cell.backgroundColor = .dBlue
-            cell.layer.cornerRadius = 10
-            cell.dateLabel.textColor = .white
-            cell.dayLabel.textColor = .white
+            cell.dateLabel.textColor = .lBlue
+            cell.dayLabel.textColor = .lBlue
+        } else if Calendar.current.isDate(date, inSameDayAs: selectedDate ?? today) {
+            cell.dateLabel.textColor = .dBlue
+            cell.dayLabel.textColor = .dBlue
+            cell.dayLabel.font = UIFont.boldSystemFont(ofSize: 16)
+            cell.dateLabel.font = UIFont.boldSystemFont(ofSize: 18)
         } else {
-            cell.backgroundColor = .clear
             cell.dateLabel.textColor = .black
             cell.dayLabel.textColor = .black
         }
-        
-        return cell
     }
 }
 
@@ -122,7 +129,12 @@ extension WeeklyCalendarView: UICollectionViewDataSource {
 extension WeeklyCalendarView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedDate = dates[indexPath.item]
+        currentDate = selectedDate
+        self.selectedDate = selectedDate
+        
         delegate?.didSelectDate(selectedDate)
+        
+        populateDates()
     }
 }
 
