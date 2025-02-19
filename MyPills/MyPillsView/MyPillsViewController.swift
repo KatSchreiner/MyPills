@@ -14,6 +14,13 @@ class MyPillsViewController: UIViewController {
         return view
     }()
     
+    lazy var dateLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 20)
+        return label
+    }()
+    
     lazy var addPillButton: UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "plus")
@@ -40,6 +47,28 @@ class MyPillsViewController: UIViewController {
         
     }
     
+    @objc
+    func handleDaySwipe(_ gesture: UISwipeGestureRecognizer) {
+        let calendar = Calendar.current
+        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: selectedDate))!
+        let weekEnd = calendar.date(byAdding: .day, value: 6, to: weekStart)!
+
+        if gesture.direction == .left {
+            if selectedDate >= weekEnd {
+                weeklyCalendarView.currentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: weeklyCalendarView.currentDate)!
+            }
+            selectedDate = calendar.date(byAdding: .day, value: 1, to: selectedDate)!
+        } else if gesture.direction == .right {
+            if selectedDate <= weekStart {
+                weeklyCalendarView.currentDate = calendar.date(byAdding: .weekOfYear, value: -1, to: weeklyCalendarView.currentDate)!
+            }
+            selectedDate = calendar.date(byAdding: .day, value: -1, to: selectedDate)!
+        }
+
+        dateLabel.text = formatDate(selectedDate)
+        weeklyCalendarView.updateSelectedDate(selectedDate)
+    }
+    
     // MARK: - Public Methods
     
     // MARK: - Private Methods
@@ -48,17 +77,25 @@ class MyPillsViewController: UIViewController {
         
         weeklyCalendarView.delegate = self
         
-        [weeklyCalendarView, addPillButton].forEach { view in
+        [weeklyCalendarView, dateLabel, addPillButton].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
         
+        selectedDate = Calendar.current.startOfDay(for: Date())
+        weeklyCalendarView.currentDate = selectedDate
+        dateLabel.text = formatDate(selectedDate)
+        
         addConstraint()
+        addSwipeGestures()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            weeklyCalendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            dateLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            dateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            weeklyCalendarView.topAnchor.constraint(equalTo: dateLabel.topAnchor, constant: 30),
             weeklyCalendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             weeklyCalendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             weeklyCalendarView.heightAnchor.constraint(equalToConstant: 70),
@@ -70,12 +107,30 @@ class MyPillsViewController: UIViewController {
             addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
+    
+    private func addSwipeGestures() {
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleDaySwipe(_:)))
+        swipeLeft.direction = .left
+        view.addGestureRecognizer(swipeLeft)
+        
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleDaySwipe(_:)))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        return dateFormatter.string(from: date)
+    }
 }
 
 // MARK: - WeeklyCalendarViewDelegate
 extension MyPillsViewController: WeeklyCalendarViewDelegate {
     func didSelectDate(_ date: Date) {
         selectedDate = date
+        dateLabel.text = formatDate(selectedDate)
     }
 }
 
