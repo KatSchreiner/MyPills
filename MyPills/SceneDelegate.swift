@@ -19,8 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let myPillsViewController = MyPillsViewController()
         
-        let navigationController = UINavigationController(rootViewController: myPillsViewController)
-        window?.rootViewController = navigationController
+        //let navigationController = UINavigationController(rootViewController: myPillsViewController)
+        window?.rootViewController = myPillsViewController
         window?.makeKeyAndVisible()
     }
 
