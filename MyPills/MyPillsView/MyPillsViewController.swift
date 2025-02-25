@@ -39,7 +39,7 @@ class MyPillsViewController: UIViewController {
         button.setImage(image, for: .normal)
         button.backgroundColor = .lBlue
         button.tintColor = .white
-        button.layer.cornerRadius = 40
+        button.layer.cornerRadius = 20
         button.addTarget(self, action: #selector(didTapAddPillButton), for: .touchUpInside)
         return button
     }()
@@ -56,7 +56,8 @@ class MyPillsViewController: UIViewController {
     // MARK: - IB Actions
     @objc
     private func didTapAddPillButton() {
-        
+        let addNewPill = AddNewPillViewController()
+        navigationController?.pushViewController(addNewPill, animated: true)
     }
     
     @objc
@@ -125,8 +126,8 @@ class MyPillsViewController: UIViewController {
             bottomBorderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomBorderView.heightAnchor.constraint(equalToConstant: 2),
             
-            addPillButton.widthAnchor.constraint(equalToConstant: 80),
-            addPillButton.heightAnchor.constraint(equalToConstant: 80),
+            addPillButton.widthAnchor.constraint(equalToConstant: 70),
+            addPillButton.heightAnchor.constraint(equalToConstant: 70),
             addPillButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])

@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C18E81672D5E453C0059C92B /* Exceptions for "MyPills" folder in "MyPills" target */ = {
+		C18B69122D68914F0035C4D8 /* Exceptions for "MyPills" folder in "MyPills" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -40,10 +40,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C18E81412D5E453A0059C92B /* MyPills */ = {
+		C18B68FF2D68914F0035C4D8 /* MyPills */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C18E81672D5E453C0059C92B /* Exceptions for "MyPills" folder in "MyPills" target */,
+				C18B69122D68914F0035C4D8 /* Exceptions for "MyPills" folder in "MyPills" target */,
 			);
 			path = MyPills;
 			sourceTree = "<group>";
@@ -88,7 +88,7 @@
 		C18E81362D5E453A0059C92B = {
 			isa = PBXGroup;
 			children = (
-				C18E81412D5E453A0059C92B /* MyPills */,
+				C18B68FF2D68914F0035C4D8 /* MyPills */,
 				C18E81582D5E453C0059C92B /* MyPillsTests */,
 				C18E81622D5E453C0059C92B /* MyPillsUITests */,
 				C18E81402D5E453A0059C92B /* Products */,
@@ -121,7 +121,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C18E81412D5E453A0059C92B /* MyPills */,
+				C18B68FF2D68914F0035C4D8 /* MyPills */,
 			);
 			name = MyPills;
 			packageProductDependencies = (
