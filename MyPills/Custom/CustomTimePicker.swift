@@ -24,15 +24,21 @@ class CustomTimePicker: UIPickerView {
         self.delegate = self
         self.dataSource = self
         
+        populateHours()
+        populateMinutes()
+        setCurrentTime()
+    }
+    
+    private func populateHours() {
         for hour in 0..<24 {
             hours.append(String(format: "%02d", hour))
         }
-        
+    }
+    
+    private func populateMinutes() {
         for minute in 0..<60 {
             minutes.append(String(format: "%02d", minute))
         }
-        
-        setCurrentTime()
     }
     
     private func setCurrentTime() {
@@ -43,6 +49,15 @@ class CustomTimePicker: UIPickerView {
         
         self.selectRow(currentHour, inComponent: 0, animated: true)
         self.selectRow(currentMinute, inComponent: 2, animated: true)
+    }
+    
+    private func createLabelTime(with text: String, font: UIFont = .systemFont(ofSize: 17), textColor: UIColor = .dGray) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = font
+        label.textColor = textColor
+        label.textAlignment = .center
+        return label
     }
 }
 
@@ -62,21 +77,13 @@ extension CustomTimePicker: UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-        let label = UILabel()
-        
         if component == 0 {
-            label.text = hours[row]
+            return createLabelTime(with: hours[row])
         } else if component == 1 {
-            label.text = ":"
+            return createLabelTime(with: ":")
         } else {
-            label.text = minutes[row]
+            return createLabelTime(with: minutes[row])
         }
-        
-        label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = .dGray
-        label.textAlignment = .center
-        
-        return label
     }
 }
 
@@ -84,5 +91,14 @@ extension CustomTimePicker: UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         60
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+        switch component {
+        case 0: return 30
+        case 1: return 20
+        case 2: return 30
+        default: return 0
+        }
     }
 }
