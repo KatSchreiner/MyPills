@@ -34,7 +34,6 @@ final class AddNewPillViewController: UIViewController {
     }()
 
     // MARK: - Private Properties
-
     private let intakeMethods = ["До еды", "Во время еды", "После еды", "Не зависит от еды"]
     private let daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 

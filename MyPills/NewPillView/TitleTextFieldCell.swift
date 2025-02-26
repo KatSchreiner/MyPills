@@ -75,7 +75,9 @@ class TitleTextFieldCell: UICollectionViewCell {
             self.contentView.addSubview(contentView)
             contentView.translatesAutoresizingMaskIntoConstraints = false
         }
-        
+        if let tabletImage = imagesFormTypes[1] {
+            formTypesButton.setImage(tabletImage, for: .normal)
+        }
         addConstraint()
     }
     
@@ -102,19 +104,12 @@ class TitleTextFieldCell: UICollectionViewCell {
     }
     
     private func showFormTypesSelection() {
-        let alertController = UIAlertController(title: "Выберите иконку для Вашего лекарства", message: nil, preferredStyle: .alert)
-        
-        for (index, image) in imagesFormTypes.enumerated() {
-            let action = UIAlertAction(title: "", style: .default) { [weak self] _ in
-                self?.formTypesButton.setImage(image, for: .normal)
-            }
-            
-            action.setValue(image?.withRenderingMode(.alwaysOriginal), forKey: "image")
-            alertController.addAction(action)
+        let iconSelectionVC = IconSelectionViewController()
+        iconSelectionVC.images = imagesFormTypes
+        iconSelectionVC.selectedIcon = { [weak self] image in
+            self?.formTypesButton.setImage(image, for: .normal)
         }
         
-        alertController.addAction(UIAlertAction(title: "Отмена", style: .cancel))
-        
-        addNewPillViewController?.present(alertController, animated: true)
+        addNewPillViewController?.present(iconSelectionVC, animated: true)
     }
 }
