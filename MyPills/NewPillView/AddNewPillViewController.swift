@@ -16,7 +16,6 @@ final class AddNewPillViewController: UIViewController {
         collectionView.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "HeaderView")
         collectionView.register(TitleTextFieldCell.self, forCellWithReuseIdentifier: "TitleTextFieldCell")
         collectionView.register(DosageCell.self, forCellWithReuseIdentifier: "DosageCell")
-        collectionView.register(IntakeMethodCell.self, forCellWithReuseIdentifier: "IntakeMethodCell")
         collectionView.register(DayButtonCell.self, forCellWithReuseIdentifier: "DayButtonCell")
         collectionView.register(IntakeTimeCell.self, forCellWithReuseIdentifier: "IntakeTimeCell")
         collectionView.register(RepeatReminderCell.self, forCellWithReuseIdentifier: "RepeatReminderCell")
@@ -95,8 +94,6 @@ extension AddNewPillViewController: UICollectionViewDataSource {
             return 1
         case .dosage:
             return 1
-        case .intakeMethod:
-            return 1
         case .intakeTime:
             return 1
         case .repeatDays:
@@ -120,10 +117,6 @@ extension AddNewPillViewController: UICollectionViewDataSource {
 
             return cell
 
-        case .intakeMethod:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IntakeMethodCell", for: indexPath) as! IntakeMethodCell
-            return cell
-
         case .intakeTime:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IntakeTimeCell", for: indexPath) as! IntakeTimeCell
             return cell
@@ -145,15 +138,23 @@ extension AddNewPillViewController: UICollectionViewDataSource {
             guard let section = SectionType(rawValue: indexPath.section) else { fatalError() }
 
             switch section {
-            case .title, .repeatDays:
+            case .title, .dosage, .intakeTime, .repeatDays:
                 let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HeaderView", for: indexPath) as! HeaderView
 
                 switch section {
+                case .title:
+                    headerView.headerLabel.text = "Название"
+                    
+                case .dosage:
+                    headerView.headerLabel.text = "Дозировка"
+                    
+                case .intakeTime:
+                    headerView.headerLabel.text = "Время приема"
+                    
                 case .repeatDays:
                     headerView.headerLabel.text = "Повторить"
                     
-                case .title:
-                    headerView.headerLabel.text = "Название"
+
 
                 default:
                     break
@@ -171,9 +172,9 @@ extension AddNewPillViewController: UICollectionViewDataSource {
         guard let section = SectionType(rawValue: section) else { return CGSize.zero }
 
         switch section {
-        case .dosage, .intakeMethod, .intakeTime, .repeatReminder:
+        case .repeatReminder:
             return CGSize.zero
-        case .title, .repeatDays:
+        case .title, .dosage, .intakeTime, .repeatDays:
             return CGSize(width: collectionView.bounds.width, height: 30)
         }
     }
@@ -183,8 +184,6 @@ extension AddNewPillViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let section = SectionType(rawValue: indexPath.section) else { return }
         switch section {
-        case .intakeMethod:
-            break
         case .repeatDays:
             guard collectionView.cellForItem(at: indexPath) is DayButtonCell else { return }
 
@@ -203,8 +202,6 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
                 return CGSize(width: collectionView.bounds.width, height: 60)
             case .dosage:
                 return CGSize(width: collectionView.bounds.width, height: 60)
-            case .intakeMethod:
-                return CGSize(width: collectionView.bounds.width, height: 60)
             case .intakeTime:
                 return CGSize(width: collectionView.bounds.width, height: 60)
             case .repeatDays:
@@ -219,17 +216,15 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
 
         switch section {
         case .title:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
         case .dosage:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
-        case .intakeMethod:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
         case .intakeTime:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
         case .repeatDays:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
         case .repeatReminder:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

@@ -83,6 +83,6 @@ extension CustomTimePicker: UIPickerViewDataSource {
 extension CustomTimePicker: UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        50
+        60
     }
 }
