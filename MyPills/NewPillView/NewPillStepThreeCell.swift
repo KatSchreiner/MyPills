@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DayButtonCell: UICollectionViewCell {
+class NewPillStepThreeCell: UICollectionViewCell {
     lazy var dayButton: UIButton = {
         let dayButton = UIButton()
         dayButton.layer.cornerRadius = 20
@@ -15,6 +15,22 @@ class DayButtonCell: UICollectionViewCell {
         dayButton.setTitleColor(.gray, for: .normal)
         dayButton.addTarget(self, action: #selector(didTabDayButton), for: .touchUpInside)
         return dayButton
+    }()
+    
+    lazy var headerLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .dGray
+        label.text = "Напомнить"
+        label.textAlignment = .left
+        return label
+    }()
+    
+    lazy var timePicker: UIDatePicker = {
+        let timePicker = UIDatePicker()
+        timePicker.datePickerMode = .time
+        timePicker.preferredDatePickerStyle = .wheels
+        return timePicker
     }()
     
     private var isSelectedDay: Bool = false
@@ -42,18 +58,28 @@ class DayButtonCell: UICollectionViewCell {
     }
     
     private func setupView() {
-        contentView.addSubview(dayButton)
-        dayButton.translatesAutoresizingMaskIntoConstraints = false
+        [headerLabel, dayButton, timePicker].forEach { contentView in
+            self.contentView.addSubview(contentView)
+            contentView.translatesAutoresizingMaskIntoConstraints = false
+        }
         
         addConstraint()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
+            headerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            headerLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            
             dayButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             dayButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             dayButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            dayButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            dayButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            timePicker.topAnchor.constraint(equalTo: dayButton.bottomAnchor, constant: 20),
+            timePicker.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            timePicker.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            timePicker.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
     

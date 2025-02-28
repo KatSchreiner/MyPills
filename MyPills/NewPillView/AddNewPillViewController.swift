@@ -10,30 +10,55 @@ import UIKit
 final class AddNewPillViewController: UIViewController {
 
     // MARK: - Public Properties
-    lazy var collectionView: UICollectionView = {
+
+    // MARK: - Private Properties
+    private lazy var progressView: UIProgressView = {
+        let progressView = UIProgressView(progressViewStyle: .default)
+        progressView.progressTintColor = .lBlue
+        progressView.trackTintColor = .lGray
+        return progressView
+    }()
+    
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
-        collectionView.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "HeaderView")
-        collectionView.register(TitleTextFieldCell.self, forCellWithReuseIdentifier: "TitleTextFieldCell")
-        collectionView.register(DosageCell.self, forCellWithReuseIdentifier: "DosageCell")
-        collectionView.register(DayButtonCell.self, forCellWithReuseIdentifier: "DayButtonCell")
-        collectionView.register(IntakeTimeCell.self, forCellWithReuseIdentifier: "IntakeTimeCell")
-        collectionView.register(RepeatReminderCell.self, forCellWithReuseIdentifier: "RepeatReminderCell")
+        collectionView.register(NewPillStepOneCell.self, forCellWithReuseIdentifier: "NewPillStepOneCell")
+        collectionView.register(NewPillStepThreeCell.self, forCellWithReuseIdentifier: "NewPillStepThreeCell")
+        collectionView.register(NewPillStepTwoCell.self, forCellWithReuseIdentifier: "NewPillStepTwoCell")
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
     }()
 
-    lazy var addPillButton: UIButton = {
+    private lazy var addPillButton: UIButton = {
         let addPillButton = UIButton()
-        addPillButton.backgroundColor = .lBlue
+        addPillButton.backgroundColor = .dBlue
         addPillButton.setTitle("Готово", for: .normal)
-        addPillButton.layer.cornerRadius = 15
+        addPillButton.layer.cornerRadius = 8
         addPillButton.addTarget(self, action: #selector(didTapAddNewPill), for: .touchUpInside)
         return addPillButton
     }()
-
-    // MARK: - Private Properties
+    
+    private lazy var backButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Назад", for: .normal)
+        button.backgroundColor = .lBlue
+        button.layer.cornerRadius = 8
+        button.addTarget(self, action: #selector(goToPreviousStep), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var nextButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Далее", for: .normal)
+        button.backgroundColor = .lBlue
+        button.layer.cornerRadius = 8
+        button.addTarget(self, action: #selector(goToNextStep), for: .touchUpInside)
+        return button
+    }()
+    
+    private var currentStep: SectionType = .title
+    
     private let intakeMethods = ["До еды", "Во время еды", "После еды", "Не зависит от еды"]
     private let daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
@@ -50,7 +75,29 @@ final class AddNewPillViewController: UIViewController {
     // MARK: - IB Actions
     @objc
     private func didTapAddNewPill() {
-        dismiss(animated: true)
+        if currentStep == .repeatDays {
+            // TODO: Сохранить данные
+            dismiss(animated: true)
+        } else {
+            goToNextStep()
+        }
+    }
+    
+    @objc
+    private func goToPreviousStep() {
+        guard let currentIndex = SectionType.allCases.firstIndex(of: currentStep), currentIndex > 0 else { return }
+        
+        currentStep = SectionType.allCases[currentIndex - 1]
+        updateUI(for: currentStep)
+    }
+    
+    @objc
+    private func goToNextStep() {
+        guard let currentIndex = SectionType.allCases.firstIndex(of: currentStep),
+              currentIndex < SectionType.allCases.count - 1 else { return }
+
+        currentStep = SectionType.allCases[currentIndex + 1]
+        updateUI(for: currentStep)
     }
 
     // MARK: - Public Methods
@@ -58,134 +105,110 @@ final class AddNewPillViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
-
-        [collectionView, addPillButton].forEach { [weak self] view in
+        self.navigationItem.setHidesBackButton(true, animated: false)
+        
+        [collectionView, progressView, backButton, nextButton].forEach { [weak self] view in
             guard let self = self else { return }
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
-
+        updateUI(for: currentStep)
         addConstraint()
     }
 
     private func addConstraint() {
         NSLayoutConstraint.activate([
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            collectionView.bottomAnchor.constraint(equalTo: addPillButton.topAnchor, constant: -20),
+            collectionView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -20),
+            
+            backButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            backButton.widthAnchor.constraint(equalToConstant: 150),
+            backButton.heightAnchor.constraint(equalToConstant: 60),
 
-            addPillButton.heightAnchor.constraint(equalToConstant: 60),
-            addPillButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addPillButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nextButton.widthAnchor.constraint(equalToConstant: 150),
+            nextButton.heightAnchor.constraint(equalToConstant: 60)
         ])
+    }
+    
+    private func updateUI(for step: SectionType) {
+        collectionView.reloadData()
+                
+        backButton.isHidden = currentStep == SectionType.allCases.first
+        nextButton.isHidden = currentStep == SectionType.allCases.last
+        addPillButton.isHidden = currentStep != SectionType.allCases.last
+        
+        if currentStep == SectionType.allCases.last {
+            view.addSubview(addPillButton)
+            addPillButton.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                addPillButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                addPillButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                addPillButton.widthAnchor.constraint(equalToConstant: 150),
+                addPillButton.heightAnchor.constraint(equalToConstant: 60)
+            ])
+        } else {
+            addPillButton.removeFromSuperview()
+        }
+        
+        updateProgress()
+    }
+    
+    private func updateProgress() {
+        let totalSteps = Float(SectionType.allCases.count)
+        let currentStepIndex = Float(currentStep.rawValue)
+        
+        progressView.setProgress((currentStepIndex + 1) / totalSteps, animated: true)
     }
 }
 
 extension AddNewPillViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return SectionType.allCases.count
+        return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch SectionType(rawValue: section)! {
-        case .title:
-            return 1
-        case .dosage:
-            return 1
-        case .intakeTime:
-            return 1
-        case .repeatDays:
-            return daysOfWeek.count
-        case .repeatReminder:
-            return 1
+        switch currentStep {
+        case .title: return 1
+        case .intakeTime: return 1
+        case .repeatDays: return daysOfWeek.count
         }
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let section = SectionType(rawValue: indexPath.section) else { fatalError() }
-
-        switch section {
+        switch currentStep {
         case .title:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TitleTextFieldCell", for: indexPath) as! TitleTextFieldCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepOneCell", for: indexPath) as! NewPillStepOneCell
             cell.addNewPillViewController = self
             return cell
-
-        case .dosage:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DosageCell", for: indexPath) as! DosageCell
-
-            return cell
-
+            
         case .intakeTime:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IntakeTimeCell", for: indexPath) as! IntakeTimeCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepTwoCell", for: indexPath) as! NewPillStepTwoCell
             return cell
-
+            
         case .repeatDays:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayButtonCell", for: indexPath) as! DayButtonCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepThreeCell", for: indexPath) as! NewPillStepThreeCell
             cell.configure(title: daysOfWeek[indexPath.row])
             return cell
-
-        case .repeatReminder:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RepeatReminderCell", for: indexPath) as! RepeatReminderCell
-            return cell
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-
-        if kind == UICollectionView.elementKindSectionHeader {
-            guard let section = SectionType(rawValue: indexPath.section) else { fatalError() }
-
-            switch section {
-            case .title, .dosage, .intakeTime, .repeatDays:
-                let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HeaderView", for: indexPath) as! HeaderView
-
-                switch section {
-                case .title:
-                    headerView.headerLabel.text = "Название"
-                    
-                case .dosage:
-                    headerView.headerLabel.text = "Дозировка"
-                    
-                case .intakeTime:
-                    headerView.headerLabel.text = "Время приема"
-                    
-                case .repeatDays:
-                    headerView.headerLabel.text = "Повторить"
-                    
-
-
-                default:
-                    break
-                }
-
-                return headerView
-            default:
-                return UICollectionReusableView()
-            }
-        }
-        return UICollectionReusableView()
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        guard let section = SectionType(rawValue: section) else { return CGSize.zero }
-
-        switch section {
-        case .repeatReminder:
-            return CGSize.zero
-        case .title, .dosage, .intakeTime, .repeatDays:
-            return CGSize(width: collectionView.bounds.width, height: 30)
         }
     }
 }
 
 extension AddNewPillViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let section = SectionType(rawValue: indexPath.section) else { return }
-        switch section {
+        
+        switch currentStep {
         case .repeatDays:
-            guard collectionView.cellForItem(at: indexPath) is DayButtonCell else { return }
-
+            guard collectionView.cellForItem(at: indexPath) is NewPillStepThreeCell else { return }
+            
         default:
             break
         }
@@ -194,45 +217,43 @@ extension AddNewPillViewController: UICollectionViewDelegate {
 
 extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let section = SectionType(rawValue: indexPath.section) else { fatalError() }
-
-            switch section {
-            case .title:
-                return CGSize(width: collectionView.bounds.width, height: 60)
-            case .dosage:
-                return CGSize(width: collectionView.bounds.width, height: 60)
-            case .intakeTime:
-                return CGSize(width: collectionView.bounds.width, height: 60)
-            case .repeatDays:
-                return CGSize(width: (collectionView.bounds.width - 40) / 7, height: 40)
-            case .repeatReminder:
-                return CGSize(width: collectionView.bounds.width, height: 60)
-            }
-        }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let section = SectionType(rawValue: section) else { fatalError("Invalid section") }
-
-        switch section {
+        
+        let width = collectionView.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+        
+        switch currentStep {
         case .title:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
-        case .dosage:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+            return CGSize(width: width, height: collectionView.bounds.height)
+            
         case .intakeTime:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+            return CGSize(width: width, height: 60)
+            
         case .repeatDays:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
-        case .repeatReminder:
-            return UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+            return CGSize(width: (width - 40) / 7, height: 40)
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        let width = collectionView.bounds.width
+        
+        switch currentStep {
+        case .title:
+            return UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
+            
+        case .intakeTime:
+            return UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
+            
+        case .repeatDays:
+            return UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         4
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int
     ) -> CGFloat {
         10
     }
 }
-

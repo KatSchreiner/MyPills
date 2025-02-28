@@ -7,7 +7,7 @@
 
 import UIKit
 
-class IntakeTimeCell: UICollectionViewCell {
+class NewPillStepTwoCell: UICollectionViewCell {
     lazy var timePicker: CustomTimePicker = {
         let timePicker = CustomTimePicker()
         return timePicker
@@ -62,7 +62,7 @@ class IntakeTimeCell: UICollectionViewCell {
     }
 }
 
-extension IntakeTimeCell: UIPickerViewDataSource {
+extension NewPillStepTwoCell: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return pickerData.count
     }
@@ -81,7 +81,7 @@ extension IntakeTimeCell: UIPickerViewDataSource {
     }
 }
 
-extension IntakeTimeCell: UIPickerViewDelegate {
+extension NewPillStepTwoCell: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedOption = pickerData[row]
     }

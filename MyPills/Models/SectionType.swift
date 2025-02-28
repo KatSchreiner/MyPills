@@ -8,9 +8,15 @@
 import UIKit
 
 enum SectionType: Int, CaseIterable {
-    case title
-    case dosage
+    case title = 0
     case intakeTime
     case repeatDays
-    case repeatReminder
+    
+    var title: String {
+        switch self {
+        case .title: return "Добавить лекарство"
+        case .intakeTime: return "Как принимать"
+        case .repeatDays: return "Повторить"
+        }
+    }
 }
