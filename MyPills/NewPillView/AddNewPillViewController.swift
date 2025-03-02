@@ -59,6 +59,15 @@ final class AddNewPillViewController: UIViewController {
         return button
     }()
     
+    private lazy var cancelButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .lBlue
+        button.layer.cornerRadius = 8
+        button.setTitle("Отмена", for: .normal)
+        button.addTarget(self, action: #selector(didTapCancelNewPill), for: .touchUpInside)
+        return button
+    }()
+    
     private var currentStep: SectionType = .title
     
     private let intakeMethods = ["До еды", "Во время еды", "После еды", "Не зависит от еды"]
@@ -79,10 +88,14 @@ final class AddNewPillViewController: UIViewController {
     private func didTapAddNewPill() {
         if currentStep == .repeatDays {
             // TODO: Сохранить данные
-            dismiss(animated: true)
         } else {
             goToNextStep()
         }
+    }
+    
+    @objc
+    private func didTapCancelNewPill() {
+        navigationController?.popViewController(animated: true)
     }
     
     @objc
@@ -109,7 +122,7 @@ final class AddNewPillViewController: UIViewController {
         view.backgroundColor = .systemBackground
         self.navigationItem.setHidesBackButton(true, animated: false)
         
-        [collectionView, progressView, backButton, nextButton].forEach { [weak self] view in
+        [collectionView, progressView, backButton, nextButton, cancelButton].forEach { [weak self] view in
             guard let self = self else { return }
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -137,7 +150,12 @@ final class AddNewPillViewController: UIViewController {
             nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.widthAnchor.constraint(equalToConstant: 150),
-            nextButton.heightAnchor.constraint(equalToConstant: 60)
+            nextButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            cancelButton.widthAnchor.constraint(equalToConstant: 150),
+            cancelButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     
@@ -147,6 +165,7 @@ final class AddNewPillViewController: UIViewController {
         backButton.isHidden = currentStep == SectionType.allCases.first
         nextButton.isHidden = currentStep == SectionType.allCases.last
         addPillButton.isHidden = currentStep != SectionType.allCases.last
+        cancelButton.isHidden = currentStep != SectionType.allCases.first
         
         if currentStep == SectionType.allCases.last {
             view.addSubview(addPillButton)
@@ -221,7 +240,6 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let width = collectionView.bounds.width
-        let screenHeight = UIScreen.main.bounds.height
         
         switch currentStep {
         case .title:
@@ -236,7 +254,6 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        let width = collectionView.bounds.width
         
         switch currentStep {
         case .title:

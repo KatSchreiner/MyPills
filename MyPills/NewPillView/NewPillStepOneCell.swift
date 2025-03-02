@@ -145,12 +145,10 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         iconSelectionVC.selectedIcon = { [weak self] image in
             guard let self = self else { return }
             
-            // Анимация изменения изображения
             UIView.transition(with: self.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
                 self.formTypesButton.setImage(image, for: .normal)
             }, completion: nil)
             
-            // Удаление дочернего контроллера
             self.dismissIconSelection()
         }
         
