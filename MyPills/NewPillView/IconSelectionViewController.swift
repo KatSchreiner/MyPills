@@ -15,15 +15,26 @@ class IconSelectionViewController: UIViewController {
     // MARK: - Private Properties
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 50, height: 50)
-        layout.minimumInteritemSpacing = 20
-        layout.minimumLineSpacing = 20
+        layout.itemSize = CGSize(width: 70, height: 70)
+        layout.minimumInteritemSpacing = 18
+        layout.minimumLineSpacing = 18
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(IconCell.self, forCellWithReuseIdentifier: "IconCell")
+        collectionView.backgroundColor = .clear
         return collectionView
+    }()
+    
+    private lazy var container: UIView = {
+        let container = UIView()
+        container.backgroundColor = .lGray
+        container.layer.cornerRadius = 16
+        container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        container.alpha = 0
+        return container
     }()
     
     // MARK: - View Life Cycles
@@ -32,23 +43,61 @@ class IconSelectionViewController: UIViewController {
         setupView()
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first, touch.view == self.view {
+            dismissContainer()
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupView() {
-        view.backgroundColor = .white
-        view.addSubview(collectionView)
+        view.backgroundColor = .clear
+        
+        view.addSubview(container)
+        container.translatesAutoresizingMaskIntoConstraints = false
+        
+        container.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         addConstraint()
+        
+        startAnimationContainer()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20)
+            container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            container.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            container.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4),
+            container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            collectionView.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            collectionView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            collectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
     }
+    
+    private func startAnimationContainer() {
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+            self.container.transform = .identity
+            self.container.alpha = 1
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        }, completion: nil)
+    }
+    
+    private func dismissContainer() {
+        UIView.animate(withDuration: 0.5, animations: {
+            self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+            self.container.alpha = 0
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
+        }) { _ in
+            self.willMove(toParent: nil)
+            self.view.removeFromSuperview()
+            self.removeFromParent()
+        }
+    }
+
 }
 
 // MARK: - UICollectionViewDataSource
@@ -56,10 +105,11 @@ extension IconSelectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return images.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IconCell", for: indexPath) as! IconCell
         cell.imageView.image = images[indexPath.item]
+
         return cell
     }
 }
@@ -67,7 +117,15 @@ extension IconSelectionViewController: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension IconSelectionViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedIcon?(images[indexPath.item])
-        dismiss(animated: true, completion: nil)
+        UIView.animate(withDuration: 0.5, animations: {
+            self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+            self.container.alpha = 0
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
+        }) { _ in
+            self.selectedIcon?(self.images[indexPath.item])
+            self.willMove(toParent: nil)
+            self.view.removeFromSuperview()
+            self.removeFromParent()
+        }
     }
 }

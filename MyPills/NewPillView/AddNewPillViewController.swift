@@ -48,11 +48,13 @@ final class AddNewPillViewController: UIViewController {
         return button
     }()
     
-    private lazy var nextButton: UIButton = {
+    lazy var nextButton: UIButton = {
         let button = UIButton()
         button.setTitle("Далее", for: .normal)
         button.backgroundColor = .lBlue
         button.layer.cornerRadius = 8
+        button.isEnabled = false
+        button.alpha = 0.4
         button.addTarget(self, action: #selector(goToNextStep), for: .touchUpInside)
         return button
     }()

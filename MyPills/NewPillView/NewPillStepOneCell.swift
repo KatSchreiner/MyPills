@@ -7,15 +7,13 @@
 
 import UIKit
 
-class NewPillStepOneCell: UICollectionViewCell {
+class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
     // MARK: - Public Properties
     weak var addNewPillViewController: AddNewPillViewController?
 
     // MARK: - Private Properties
     private lazy var formTypesButton: UIButton = {
         let button = UIButton()
-        //button.backgroundColor = .dBlue
-        //button.layer.cornerRadius = 8
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
@@ -33,11 +31,15 @@ class NewPillStepOneCell: UICollectionViewCell {
     
     private lazy var titleTextField: ClearableTextField = {
         let textField = ClearableTextField()
+        textField.delegate = self
+        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }()
     
     private lazy var dosageTextField: ClearableTextField = {
         let textField = ClearableTextField()
+        textField.delegate = self
+        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }()
     
@@ -55,7 +57,10 @@ class NewPillStepOneCell: UICollectionViewCell {
         UIImage(named: "drops"),
         UIImage(named: "syrup"),
         UIImage(named: "injection"),
-        UIImage(named: "ointment")
+        UIImage(named: "ointment"),
+        UIImage(named: "spray"),
+        UIImage(named: "nasalspray"),
+        UIImage(named: "vitamins")
     ]
     
     private var tapGestureRecognizer: UITapGestureRecognizer!
@@ -76,10 +81,22 @@ class NewPillStepOneCell: UICollectionViewCell {
         showFormTypesSelection()
     }
     
-    // MARK: - Public Methods
-    func configure(title: String, image: UIImage?) {
-        formTypesButton.setImage(image, for: .normal)
+    @objc
+    private func textFieldDidChange(_ textField: UITextField) {
+        let isTitleFilled = !(titleTextField.text?.isEmpty ?? true)
+        let isDosageFilled = !(dosageTextField.text?.isEmpty ?? true)
+        
+        if isTitleFilled && isDosageFilled {
+            addNewPillViewController?.nextButton.isEnabled = true
+            addNewPillViewController?.nextButton.alpha = 1.0
+        } else {
+            addNewPillViewController?.nextButton.isEnabled = false
+            addNewPillViewController?.nextButton.alpha = 0.4
+        }
     }
+    
+    // MARK: - Public Methods
+
     
     // MARK: - Private Methods
     private func setupView() {
@@ -119,8 +136,6 @@ class NewPillStepOneCell: UICollectionViewCell {
             dosageTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             dosageTextField.heightAnchor.constraint(equalToConstant: 60),
             dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor)
-            
-            
         ])
     }
     
@@ -128,10 +143,29 @@ class NewPillStepOneCell: UICollectionViewCell {
         let iconSelectionVC = IconSelectionViewController()
         iconSelectionVC.images = imagesFormTypes
         iconSelectionVC.selectedIcon = { [weak self] image in
-            self?.formTypesButton.setImage(image, for: .normal)
+            guard let self = self else { return }
+            
+            // Анимация изменения изображения
+            UIView.transition(with: self.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                self.formTypesButton.setImage(image, for: .normal)
+            }, completion: nil)
+            
+            // Удаление дочернего контроллера
+            self.dismissIconSelection()
         }
         
-        addNewPillViewController?.present(iconSelectionVC, animated: true)
+        addNewPillViewController?.addChild(iconSelectionVC)
+        addNewPillViewController?.view.addSubview(iconSelectionVC.view)
+        iconSelectionVC.view.frame = addNewPillViewController!.view.bounds
+        iconSelectionVC.didMove(toParent: addNewPillViewController)
+    }
+
+    private func dismissIconSelection() {
+        if let iconSelectionVC = addNewPillViewController?.children.last {
+            iconSelectionVC.willMove(toParent: nil)
+            iconSelectionVC.view.removeFromSuperview()
+            iconSelectionVC.removeFromParent()
+        }
     }
     
     private func setupTapGesture() {
