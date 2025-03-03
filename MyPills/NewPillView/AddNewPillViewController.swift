@@ -22,9 +22,9 @@ final class AddNewPillViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
-        collectionView.register(NewPillStepOneCell.self, forCellWithReuseIdentifier: "NewPillStepOneCell")
-        collectionView.register(NewPillStepThreeCell.self, forCellWithReuseIdentifier: "NewPillStepThreeCell")
-        collectionView.register(NewPillStepTwoCell.self, forCellWithReuseIdentifier: "NewPillStepTwoCell")
+        collectionView.register(NewPillStepOneCell.self, forCellWithReuseIdentifier: NewPillStepOneCell.stepOne)
+        collectionView.register(NewPillStepThreeCell.self, forCellWithReuseIdentifier: NewPillStepThreeCell.stepTwo)
+        collectionView.register(NewPillStepTwoCell.self, forCellWithReuseIdentifier: NewPillStepTwoCell.stepThree)
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
@@ -61,7 +61,7 @@ final class AddNewPillViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .lBlue
+        button.backgroundColor = .dBlue
         button.layer.cornerRadius = 8
         button.setTitle("Отмена", for: .normal)
         button.addTarget(self, action: #selector(didTapCancelNewPill), for: .touchUpInside)
@@ -207,16 +207,16 @@ extension AddNewPillViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch currentStep {
         case .title:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepOneCell", for: indexPath) as! NewPillStepOneCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewPillStepOneCell.stepOne, for: indexPath) as! NewPillStepOneCell
             cell.addNewPillViewController = self
             return cell
             
         case .intakeTime:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepTwoCell", for: indexPath) as! NewPillStepTwoCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewPillStepTwoCell.stepTwo, for: indexPath) as! NewPillStepTwoCell
             return cell
             
         case .repeatDays:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewPillStepThreeCell", for: indexPath) as! NewPillStepThreeCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewPillStepThreeCell.stepThree, for: indexPath) as! NewPillStepThreeCell
             cell.configure(title: daysOfWeek[indexPath.row])
             return cell
         }

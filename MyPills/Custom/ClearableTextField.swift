@@ -35,10 +35,12 @@ class ClearableTextField: UITextField {
         self.layer.cornerRadius = 8
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOffset = CGSize(width: 0, height: 1)
-        self.layer.shadowOpacity = 0.2
+        self.layer.shadowOpacity = 0.4
         self.layer.shadowRadius = 2.0
         
         self.backgroundColor = .lGray
+        self.textColor = .dGray
+        self.alpha = 0.3
         self.textAlignment = .left
         self.rightView = clearButton
         self.rightViewMode = .whileEditing

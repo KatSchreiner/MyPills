@@ -8,19 +8,21 @@
 import UIKit
 
 class NewPillStepTwoCell: UICollectionViewCell {
-    lazy var timePicker: CustomTimePicker = {
+    static var stepTwo = "NewPillStepTwoCell"
+    
+    private lazy var timePicker: CustomTimePicker = {
         let timePicker = CustomTimePicker()
         return timePicker
     }()
     
-    lazy var pickerView: UIPickerView = {
+    private lazy var pickerView: UIPickerView = {
         let pickerView = UIPickerView()
         pickerView.delegate = self
         pickerView.dataSource = self
         return pickerView
     }()
     
-    let pickerData = ["Не зависит от еды", "До еды", "Во время еды", "После еды"]
+    private let pickerData = ["Не зависит от еды", "До еды", "Во время еды", "После еды"]
     var selectedOption: String?
     
     override init(frame: CGRect) {

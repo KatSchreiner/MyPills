@@ -9,6 +9,7 @@ import UIKit
 
 class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
     // MARK: - Public Properties
+    static let stepOne = "NewPillStepOneCell"
     weak var addNewPillViewController: AddNewPillViewController?
 
     // MARK: - Private Properties
@@ -25,6 +26,7 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "Название"
+        label.textColor = .dGray
         label.textAlignment = .left
         return label
     }()
@@ -36,6 +38,15 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         return textField
     }()
     
+    private lazy var dosageLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "Дозировка"
+        label.textColor = .dGray
+        label.textAlignment = .left
+        return label
+    }()
+    
     private lazy var dosageTextField: ClearableTextField = {
         let textField = ClearableTextField()
         textField.delegate = self
@@ -43,25 +54,17 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         return textField
     }()
     
-    private lazy var dosageLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.text = "Дозировка"
-        label.textAlignment = .left
-        return label
+    private lazy var unitPickerView: UIPickerView = {
+        let pickerView = UIPickerView()
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        return pickerView
     }()
         
-    private let imagesFormTypes = [
-        UIImage(named: "capsule"),
-        UIImage(named: "tablet"),
-        UIImage(named: "drops"),
-        UIImage(named: "syrup"),
-        UIImage(named: "injection"),
-        UIImage(named: "ointment"),
-        UIImage(named: "spray"),
-        UIImage(named: "nasalspray"),
-        UIImage(named: "vitamins")
-    ]
+    private let imagesFormTypes = [UIImage(named: "capsule"), UIImage(named: "tablet"), UIImage(named: "drops"), UIImage(named: "syrup"), UIImage(named: "injection"), UIImage(named: "ointment"), UIImage(named: "spray"), UIImage(named: "nasalspray"), UIImage(named: "vitamins")]
+    
+    private let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капли", "Таблетки", "Капсулы"]
+    var selectedUnit: String?
     
     private var tapGestureRecognizer: UITapGestureRecognizer!
     
@@ -95,22 +98,31 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         }
     }
     
+    @objc private func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        self.endEditing(true)
+    }
+    
     // MARK: - Public Methods
 
     
     // MARK: - Private Methods
     private func setupView() {
-        [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel].forEach { contentView in
+        [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel, unitPickerView].forEach { contentView in
             self.contentView.addSubview(contentView)
             contentView.translatesAutoresizingMaskIntoConstraints = false
         }
-        
+        self.contentView.clipsToBounds = false
+
         if let tabletImage = imagesFormTypes[1] {
             formTypesButton.setImage(tabletImage, for: .normal)
         }
         
         addConstraint()
         setupTapGesture()
+        
+        let defaultRow = unitPickerViewData.count / 2
+        unitPickerView.selectRow(defaultRow, inComponent: 0, animated: true)
+        selectedUnit = unitPickerViewData[defaultRow]
     }
     
     private func addConstraint() {
@@ -133,9 +145,13 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
             
             dosageTextField.topAnchor.constraint(equalTo: dosageLabel.bottomAnchor, constant: 20),
             dosageTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            dosageTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             dosageTextField.heightAnchor.constraint(equalToConstant: 60),
-            dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor)
+            dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor),
+            
+            unitPickerView.widthAnchor.constraint(equalToConstant: 150),
+            unitPickerView.leadingAnchor.constraint(equalTo: dosageTextField.trailingAnchor, constant: 16),
+            unitPickerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            unitPickerView.centerYAnchor.constraint(equalTo: dosageTextField.centerYAnchor)
         ])
     }
     
@@ -171,8 +187,33 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         self.contentView.addGestureRecognizer(tapGestureRecognizer)
         self.contentView.isUserInteractionEnabled = true
     }
+}
 
-    @objc private func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        self.endEditing(true)
+extension NewPillStepOneCell: UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return unitPickerViewData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let label = (view as? UILabel) ?? UILabel()
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.textAlignment = .center
+        label.textColor = .dGray
+        label.text = unitPickerViewData[row]
+        return label
+    }
+}
+
+extension NewPillStepOneCell: UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedUnit = unitPickerViewData[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        60
     }
 }

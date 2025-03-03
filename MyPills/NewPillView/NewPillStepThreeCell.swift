@@ -8,7 +8,9 @@
 import UIKit
 
 class NewPillStepThreeCell: UICollectionViewCell {
-    lazy var dayButton: UIButton = {
+    static var stepThree = "NewPillStepThreeCell"
+    
+    private lazy var dayButton: UIButton = {
         let dayButton = UIButton()
         dayButton.layer.cornerRadius = 20
         dayButton.backgroundColor = .lGray
@@ -17,7 +19,7 @@ class NewPillStepThreeCell: UICollectionViewCell {
         return dayButton
     }()
     
-    lazy var headerLabel: UILabel = {
+    private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         label.textColor = .dGray
@@ -26,7 +28,7 @@ class NewPillStepThreeCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var timePicker: UIDatePicker = {
+    private lazy var timePicker: UIDatePicker = {
         let timePicker = UIDatePicker()
         timePicker.datePickerMode = .time
         timePicker.preferredDatePickerStyle = .wheels
