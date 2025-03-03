@@ -10,7 +10,17 @@ import UIKit
 final class AddNewPillViewController: UIViewController {
 
     // MARK: - Public Properties
-
+    lazy var nextButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Далее", for: .normal)
+        button.backgroundColor = .lBlue
+        button.layer.cornerRadius = 8
+        button.isEnabled = false
+        button.alpha = 0.4
+        button.addTarget(self, action: #selector(goToNextStep), for: .touchUpInside)
+        return button
+    }()
+    
     // MARK: - Private Properties
     private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
@@ -47,18 +57,7 @@ final class AddNewPillViewController: UIViewController {
         button.addTarget(self, action: #selector(goToPreviousStep), for: .touchUpInside)
         return button
     }()
-    
-    lazy var nextButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Далее", for: .normal)
-        button.backgroundColor = .lBlue
-        button.layer.cornerRadius = 8
-        button.isEnabled = false
-        button.alpha = 0.4
-        button.addTarget(self, action: #selector(goToNextStep), for: .touchUpInside)
-        return button
-    }()
-    
+
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .dBlue
@@ -116,6 +115,11 @@ final class AddNewPillViewController: UIViewController {
         currentStep = SectionType.allCases[currentIndex + 1]
         updateUI(for: currentStep)
     }
+    
+    @objc
+    private func dismissKeyboard() {
+        view.endEditing(true)
+    }
 
     // MARK: - Public Methods
 
@@ -124,11 +128,16 @@ final class AddNewPillViewController: UIViewController {
         view.backgroundColor = .systemBackground
         self.navigationItem.setHidesBackButton(true, animated: false)
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
         [collectionView, progressView, backButton, nextButton, cancelButton].forEach { [weak self] view in
             guard let self = self else { return }
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
+        
         updateUI(for: currentStep)
         addConstraint()
     }
@@ -194,6 +203,7 @@ final class AddNewPillViewController: UIViewController {
     }
 }
 
+// MARK: - UICollectionViewDataSource
 extension AddNewPillViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -211,6 +221,8 @@ extension AddNewPillViewController: UICollectionViewDataSource {
         case .title:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewPillStepOneCell.stepOne, for: indexPath) as! NewPillStepOneCell
             cell.delegate = self
+            cell.titleTextField.delegate = self
+            cell.dosageTextField.delegate = self
             return cell
             
         case .intakeTime:
@@ -225,14 +237,17 @@ extension AddNewPillViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: - UICollectionViewDelegate
 extension AddNewPillViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         switch currentStep {
         case .title:
             let cell = collectionView.cellForItem(at: indexPath) as? NewPillStepOneCell
+            
         case .intakeTime:
             let cell = collectionView.cellForItem(at: indexPath) as? NewPillStepTwoCell
+        
         case .repeatDays:
             guard collectionView.cellForItem(at: indexPath) is NewPillStepThreeCell else { return }
         }
@@ -240,9 +255,11 @@ extension AddNewPillViewController: UICollectionViewDelegate {
     
     private func showFormTypesSelection(for cell: NewPillStepOneCell) {
         let iconSelectionVC = IconSelectionViewController()
-        iconSelectionVC.selectedIcon = { image in
+        iconSelectionVC.selectedIcon = { [weak cell] selectedImage in
+            guard let cell = cell else { return }
+            print("Icon selected for cell")
             UIView.transition(with: cell.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                cell.formTypesButton.setImage(image, for: .normal)
+                cell.formTypesButton.setImage(selectedImage, for: .normal)
             }, completion: nil)
         }
         
@@ -250,9 +267,11 @@ extension AddNewPillViewController: UICollectionViewDelegate {
         view.addSubview(iconSelectionVC.view)
         iconSelectionVC.view.frame = view.bounds
         iconSelectionVC.didMove(toParent: self)
+        print("IconSelectionViewController added")
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
 extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -294,6 +313,7 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - AddNewPillViewController
 extension AddNewPillViewController {
     private func validateCurrentStep() -> Bool {
         switch currentStep {
@@ -317,6 +337,7 @@ extension AddNewPillViewController {
     }
 }
 
+// MARK: - NewPillStepOneCellDelegate
 extension AddNewPillViewController: NewPillStepOneCellDelegate {
     func didChangeTextFields(in cell: NewPillStepOneCell) {
         let isValid = validateCurrentStep()
@@ -326,5 +347,13 @@ extension AddNewPillViewController: NewPillStepOneCellDelegate {
     
     func didTapFormTypesButton(in cell: NewPillStepOneCell) {
         showFormTypesSelection(for: cell)
+    }
+}
+
+// MARK: - NewPillStepOneCellDelegate
+extension AddNewPillViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

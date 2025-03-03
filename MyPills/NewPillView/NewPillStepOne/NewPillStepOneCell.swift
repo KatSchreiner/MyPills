@@ -11,9 +11,10 @@ protocol NewPillStepOneCellDelegate: AnyObject {
     func didTapFormTypesButton(in cell: NewPillStepOneCell)
     func didChangeTextFields(in cell: NewPillStepOneCell)
 }
+
 class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
-    // MARK: - Public Properties
     
+    // MARK: - Public Properties
     static let stepOne = "NewPillStepOneCell"
     weak var delegate: NewPillStepOneCellDelegate?
     
@@ -22,39 +23,20 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        button.setImage(UIImage(named: "tablet"), for: .normal)
         button.addTarget(self, action: #selector(didTapFormTypesButton), for: .touchUpInside)
         return button
     }()
     
-    lazy var titleTextField: ClearableTextField = {
-        let textField = ClearableTextField()
-        textField.delegate = self
-        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        return textField
-    }()
-    
-    lazy var dosageTextField: ClearableTextField = {
-        let textField = ClearableTextField()
-        textField.delegate = self
-        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        return textField
-    }()
+    lazy var titleTextField: ClearableTextField = createTextField()
+    lazy var dosageTextField: ClearableTextField = createTextField()
     
     // MARK: - Private Properties
-    private let unitPickerManager = UnitPickerManager()
-
-    private lazy var titleLabel: UILabel = {
-        return createLabel(text: "Название", textColor: .black, fontSize: 18)
-    }()
+    private lazy var titleLabel: UILabel = createLabel(text: "Название", textColor: .black, fontSize: 18)
+    private lazy var dosageLabel: UILabel = createLabel(text: "Дозировка", textColor: .black, fontSize: 18)
     
-    private lazy var dosageLabel: UILabel = {
-        return createLabel(text: "Дозировка", textColor: .black, fontSize: 18)
-    }()
-    
-    private lazy var unitPickerView: UIPickerView = {
-        let pickerView = UIPickerView()
-        pickerView.delegate = unitPickerManager
-        pickerView.dataSource = unitPickerManager
+    private lazy var unitPickerView: UnitPickerManager = {
+        let pickerView = UnitPickerManager()
         return pickerView
     }()
         
@@ -78,10 +60,6 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
     private func textFieldDidChange(_ textField: UITextField) {
         delegate?.didChangeTextFields(in: self)
     }
-    
-    @objc private func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        self.endEditing(true)
-    }
 
     // MARK: - Private Methods
     private func setupView() {
@@ -90,13 +68,8 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
             contentView.translatesAutoresizingMaskIntoConstraints = false
         }
         self.contentView.clipsToBounds = false
-
-        if let tabletImage = UIImage(named: "tablet") {
-            formTypesButton.setImage(tabletImage, for: .normal)
-        }
         
         addConstraint()
-        setupTapGesture()
     }
     
     private func addConstraint() {
@@ -129,12 +102,6 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         ])
     }
     
-    private func setupTapGesture() {
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        self.contentView.addGestureRecognizer(tapGestureRecognizer)
-        self.contentView.isUserInteractionEnabled = true
-    }
-    
     private func createLabel(text: String, textColor: UIColor, fontSize: CGFloat) -> UILabel {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: fontSize)
@@ -142,5 +109,12 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         label.textColor = textColor
         label.textAlignment = .left
         return label
+    }
+    
+    private func createTextField() -> ClearableTextField {
+        let textField = ClearableTextField()
+        textField.delegate = self
+        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        return textField
     }
 }

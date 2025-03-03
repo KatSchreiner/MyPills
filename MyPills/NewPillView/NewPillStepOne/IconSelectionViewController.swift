@@ -25,6 +25,7 @@ class IconSelectionViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.allowsSelection = true
         collectionView.register(IconCell.self, forCellWithReuseIdentifier: "IconCell")
         collectionView.backgroundColor = .clear
         return collectionView
@@ -111,7 +112,6 @@ extension IconSelectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IconCell", for: indexPath) as! IconCell
         cell.imageView.image = imagesFormTypes[indexPath.item]
-
         return cell
     }
 }
@@ -119,12 +119,14 @@ extension IconSelectionViewController: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension IconSelectionViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedImage = imagesFormTypes[indexPath.item]
+        
         UIView.animate(withDuration: 0.5, animations: {
             self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
             self.container.alpha = 0
             self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
         }) { _ in
-            self.selectedIcon?(self.imagesFormTypes[indexPath.item])
+            self.selectedIcon?(selectedImage)
             self.willMove(toParent: nil)
             self.view.removeFromSuperview()
             self.removeFromParent()

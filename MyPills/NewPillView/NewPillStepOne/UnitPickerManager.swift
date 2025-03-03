@@ -7,10 +7,39 @@
 
 import UIKit
 
-class UnitPickerManager: NSObject, UIPickerViewDataSource, UIPickerViewDelegate  {
+class UnitPickerManager: UIView, UIPickerViewDelegate, UIPickerViewDataSource  {
+    private let pickerView: UIPickerView = {
+        let picker = UIPickerView()
+        return picker
+    }()
     private let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капли", "Таблетки", "Капсулы"]
     var selectedUnit: String?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupView() {
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        
+        addSubview(pickerView)
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            pickerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            pickerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            pickerView.topAnchor.constraint(equalTo: self.topAnchor),
+            pickerView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        ])
+    }
+    
+    // MARK: - UIPickerViewDataSource
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -28,11 +57,12 @@ class UnitPickerManager: NSObject, UIPickerViewDataSource, UIPickerViewDelegate 
         return label
     }
     
+    // MARK: - UIPickerViewDelegate
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedUnit = unitPickerViewData[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        60
+        return 60
     }
 }
