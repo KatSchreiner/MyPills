@@ -23,8 +23,8 @@ final class AddNewPillViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collectionView.register(NewPillStepOneCell.self, forCellWithReuseIdentifier: NewPillStepOneCell.stepOne)
-        collectionView.register(NewPillStepThreeCell.self, forCellWithReuseIdentifier: NewPillStepThreeCell.stepTwo)
-        collectionView.register(NewPillStepTwoCell.self, forCellWithReuseIdentifier: NewPillStepTwoCell.stepThree)
+        collectionView.register(NewPillStepTwoCell.self, forCellWithReuseIdentifier: NewPillStepTwoCell.stepTwo)
+        collectionView.register(NewPillStepThreeCell.self, forCellWithReuseIdentifier: NewPillStepThreeCell.stepThree)
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
@@ -108,6 +108,8 @@ final class AddNewPillViewController: UIViewController {
     
     @objc
     private func goToNextStep() {
+        guard validateCurrentStep() else { return }
+        
         guard let currentIndex = SectionType.allCases.firstIndex(of: currentStep),
               currentIndex < SectionType.allCases.count - 1 else { return }
 
@@ -208,7 +210,7 @@ extension AddNewPillViewController: UICollectionViewDataSource {
         switch currentStep {
         case .title:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewPillStepOneCell.stepOne, for: indexPath) as! NewPillStepOneCell
-            cell.addNewPillViewController = self
+            cell.delegate = self
             return cell
             
         case .intakeTime:
@@ -225,14 +227,29 @@ extension AddNewPillViewController: UICollectionViewDataSource {
 
 extension AddNewPillViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+
         switch currentStep {
+        case .title:
+            let cell = collectionView.cellForItem(at: indexPath) as? NewPillStepOneCell
+        case .intakeTime:
+            let cell = collectionView.cellForItem(at: indexPath) as? NewPillStepTwoCell
         case .repeatDays:
             guard collectionView.cellForItem(at: indexPath) is NewPillStepThreeCell else { return }
-            
-        default:
-            break
         }
+    }
+    
+    private func showFormTypesSelection(for cell: NewPillStepOneCell) {
+        let iconSelectionVC = IconSelectionViewController()
+        iconSelectionVC.selectedIcon = { image in
+            UIView.transition(with: cell.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                cell.formTypesButton.setImage(image, for: .normal)
+            }, completion: nil)
+        }
+        
+        addChild(iconSelectionVC)
+        view.addSubview(iconSelectionVC.view)
+        iconSelectionVC.view.frame = view.bounds
+        iconSelectionVC.didMove(toParent: self)
     }
 }
 
@@ -274,5 +291,40 @@ extension AddNewPillViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int
     ) -> CGFloat {
         10
+    }
+}
+
+extension AddNewPillViewController {
+    private func validateCurrentStep() -> Bool {
+        switch currentStep {
+        case .title:
+            if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? NewPillStepOneCell {
+                let isTitleFilled = !(cell.titleTextField.text?.isEmpty ?? true)
+                let isDosageFilled = !(cell.dosageTextField.text?.isEmpty ?? true)
+                
+                return isTitleFilled && isDosageFilled
+            }
+            return false
+            
+        case .intakeTime:
+            // TODO: логика проверки intakeTime
+            return true
+            
+        case .repeatDays:
+            // TODO: логика проверки repeatDays
+            return true
+        }
+    }
+}
+
+extension AddNewPillViewController: NewPillStepOneCellDelegate {
+    func didChangeTextFields(in cell: NewPillStepOneCell) {
+        let isValid = validateCurrentStep()
+        nextButton.isEnabled = isValid
+        nextButton.alpha = isValid ? 1.0 : 0.4
+    }
+    
+    func didTapFormTypesButton(in cell: NewPillStepOneCell) {
+        showFormTypesSelection(for: cell)
     }
 }

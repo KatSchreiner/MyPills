@@ -10,6 +10,8 @@ import UIKit
 class IconSelectionViewController: UIViewController {
     // MARK: - Public Properties
     var images: [UIImage?] = []
+    private let imagesFormTypes = [UIImage(named: "capsule"), UIImage(named: "tablet"), UIImage(named: "drops"), UIImage(named: "syrup"), UIImage(named: "injection"), UIImage(named: "ointment"), UIImage(named: "spray"), UIImage(named: "nasalspray"), UIImage(named: "vitamins")]
+    
     var selectedIcon: ((UIImage?) -> Void)?
     
     // MARK: - Private Properties
@@ -103,12 +105,12 @@ class IconSelectionViewController: UIViewController {
 // MARK: - UICollectionViewDataSource
 extension IconSelectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count
+        return imagesFormTypes.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IconCell", for: indexPath) as! IconCell
-        cell.imageView.image = images[indexPath.item]
+        cell.imageView.image = imagesFormTypes[indexPath.item]
 
         return cell
     }
@@ -122,7 +124,7 @@ extension IconSelectionViewController: UICollectionViewDelegate {
             self.container.alpha = 0
             self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
         }) { _ in
-            self.selectedIcon?(self.images[indexPath.item])
+            self.selectedIcon?(self.imagesFormTypes[indexPath.item])
             self.willMove(toParent: nil)
             self.view.removeFromSuperview()
             self.removeFromParent()
