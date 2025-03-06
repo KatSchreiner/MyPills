@@ -53,9 +53,7 @@ class IconSelectionViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    private func setupView() {
-        view.backgroundColor = .clear
-        
+    private func setupView() {        
         view.addSubview(container)
         container.translatesAutoresizingMaskIntoConstraints = false
         
@@ -71,7 +69,7 @@ class IconSelectionViewController: UIViewController {
         NSLayoutConstraint.activate([
             container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             container.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            container.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4),
+            container.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6),
             container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
             collectionView.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
@@ -81,11 +79,10 @@ class IconSelectionViewController: UIViewController {
         ])
     }
     
-    private func startAnimationContainer() {
+    func startAnimationContainer() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
             self.container.transform = .identity
             self.container.alpha = 1
-            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         }, completion: nil)
     }
     
@@ -93,7 +90,6 @@ class IconSelectionViewController: UIViewController {
         UIView.animate(withDuration: 0.5, animations: {
             self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
             self.container.alpha = 0
-            self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
         }) { _ in
             self.willMove(toParent: nil)
             self.view.removeFromSuperview()
@@ -124,7 +120,6 @@ extension IconSelectionViewController: UICollectionViewDelegate {
         UIView.animate(withDuration: 0.5, animations: {
             self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
             self.container.alpha = 0
-            self.view.backgroundColor = UIColor.black.withAlphaComponent(0)
         }) { _ in
             self.selectedIcon?(selectedImage)
             self.willMove(toParent: nil)

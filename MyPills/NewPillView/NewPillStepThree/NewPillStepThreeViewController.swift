@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NewPillStepThreeCell: UICollectionViewCell {
+class NewPillStepThreeViewController: UIViewController {
     static var stepThree = "NewPillStepThreeCell"
     
     private lazy var dayButton: UIButton = {
@@ -37,15 +37,11 @@ class NewPillStepThreeCell: UICollectionViewCell {
     
     private var isSelectedDay: Bool = false
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func viewDidLoad() {
+        super.viewDidLoad()
         setupView()
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
     @objc
     private func didTabDayButton() {
         isSelectedDay.toggle()
@@ -60,9 +56,11 @@ class NewPillStepThreeCell: UICollectionViewCell {
     }
     
     private func setupView() {
-        [headerLabel, dayButton, timePicker].forEach { contentView in
-            self.contentView.addSubview(contentView)
-            contentView.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        
+        [headerLabel, dayButton, timePicker].forEach { view in
+            self.view.addSubview(view)
+            view.translatesAutoresizingMaskIntoConstraints = false
         }
         
         addConstraint()
@@ -70,18 +68,18 @@ class NewPillStepThreeCell: UICollectionViewCell {
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            headerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            headerLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            headerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
-            dayButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            dayButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            dayButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            dayButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            dayButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dayButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            dayButton.topAnchor.constraint(equalTo: view.topAnchor),
+            dayButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             timePicker.topAnchor.constraint(equalTo: dayButton.bottomAnchor, constant: 20),
-            timePicker.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            timePicker.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            timePicker.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            timePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            timePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            timePicker.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     

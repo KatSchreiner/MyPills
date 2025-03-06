@@ -12,7 +12,7 @@ class UnitPickerManager: UIView, UIPickerViewDelegate, UIPickerViewDataSource  {
         let picker = UIPickerView()
         return picker
     }()
-    private let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капли", "Таблетки", "Капсулы"]
+    private let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капля", "Таблетка", "Капсула", "Укол", "Пшик"]
     var selectedUnit: String?
 
     override init(frame: CGRect) {

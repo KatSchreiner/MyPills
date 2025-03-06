@@ -7,22 +7,17 @@
 
 import UIKit
 
-protocol NewPillStepOneCellDelegate: AnyObject {
-    func didTapFormTypesButton(in cell: NewPillStepOneCell)
-    func didChangeTextFields(in cell: NewPillStepOneCell)
-}
-
-class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
+class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Public Properties
     static let stepOne = "NewPillStepOneCell"
-    weak var delegate: NewPillStepOneCellDelegate?
-    
+
     lazy var formTypesButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        button.adjustsImageWhenHighlighted = false
         button.setImage(UIImage(named: "tablet"), for: .normal)
         button.addTarget(self, action: #selector(didTapFormTypesButton), for: .touchUpInside)
         return button
@@ -39,65 +34,81 @@ class NewPillStepOneCell: UICollectionViewCell, UITextFieldDelegate {
         let pickerView = UnitPickerManager()
         return pickerView
     }()
+    
+    private var iconSelectionVC: IconSelectionViewController?
         
     // MARK: - Initializers
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func viewDidLoad() {
+        super.viewDidLoad()
         setupView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - IB Actions
     @objc
     private func didTapFormTypesButton() {
-        delegate?.didTapFormTypesButton(in: self)
+        iconSelectionVC = IconSelectionViewController()
+        iconSelectionVC?.selectedIcon = { [weak self] selectedImage in
+            guard let self = self else { return }
+
+            UIView.transition(with: self.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                self.formTypesButton.setImage(selectedImage, for: .normal)
+            }, completion: nil)
+        }
+        
+        guard let iconSelectionVC = iconSelectionVC else { return }
+        
+        addChild(iconSelectionVC)
+        view.addSubview(iconSelectionVC.view)
+        iconSelectionVC.view.frame = view.bounds
+        iconSelectionVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        iconSelectionVC.startAnimationContainer()
     }
     
     @objc
     private func textFieldDidChange(_ textField: UITextField) {
-        delegate?.didChangeTextFields(in: self)
-    }
 
+    }
+    
     // MARK: - Private Methods
     private func setupView() {
-        [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel, unitPickerView].forEach { contentView in
-            self.contentView.addSubview(contentView)
-            contentView.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        
+        [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel, unitPickerView].forEach { view in
+            self.view.addSubview(view)
+            view.translatesAutoresizingMaskIntoConstraints = false
         }
-        self.contentView.clipsToBounds = false
+        self.view.clipsToBounds = false
         
         addConstraint()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            formTypesButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            formTypesButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
+            formTypesButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            formTypesButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
             formTypesButton.widthAnchor.constraint(equalToConstant: 100),
             formTypesButton.heightAnchor.constraint(equalToConstant: 100),
             
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.topAnchor.constraint(equalTo: formTypesButton.bottomAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLabel.topAnchor.constraint(equalTo: formTypesButton.bottomAnchor, constant: 16),
 
-            titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             titleTextField.heightAnchor.constraint(equalToConstant: 60),
             
-            dosageLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            dosageLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 30),
+            dosageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            dosageLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
             
-            dosageTextField.topAnchor.constraint(equalTo: dosageLabel.bottomAnchor, constant: 20),
-            dosageTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            dosageTextField.topAnchor.constraint(equalTo: dosageLabel.bottomAnchor, constant: 16),
+            dosageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             dosageTextField.heightAnchor.constraint(equalToConstant: 60),
-            dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor),
+            dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
             
             unitPickerView.widthAnchor.constraint(equalToConstant: 150),
             unitPickerView.leadingAnchor.constraint(equalTo: dosageTextField.trailingAnchor, constant: 16),
-            unitPickerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            unitPickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             unitPickerView.centerYAnchor.constraint(equalTo: dosageTextField.centerYAnchor)
         ])
     }
