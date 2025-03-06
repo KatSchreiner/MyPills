@@ -62,7 +62,6 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         iconSelectionVC.view.frame = view.bounds
         iconSelectionVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        iconSelectionVC.startAnimationContainer()
     }
     
     @objc

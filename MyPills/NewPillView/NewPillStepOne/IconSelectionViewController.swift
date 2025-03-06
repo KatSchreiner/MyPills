@@ -37,6 +37,7 @@ class IconSelectionViewController: UIViewController {
         container.layer.cornerRadius = 16
         container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         container.alpha = 0
+        container.applyShadow()
         return container
     }()
     
@@ -62,7 +63,7 @@ class IconSelectionViewController: UIViewController {
         
         addConstraint()
         
-        startAnimationContainer()
+        container.animateIn()
     }
     
     private func addConstraint() {
@@ -78,25 +79,14 @@ class IconSelectionViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
     }
-    
-    func startAnimationContainer() {
-        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
-            self.container.transform = .identity
-            self.container.alpha = 1
-        }, completion: nil)
-    }
-    
+
     private func dismissContainer() {
-        UIView.animate(withDuration: 0.5, animations: {
-            self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-            self.container.alpha = 0
-        }) { _ in
-            self.willMove(toParent: nil)
-            self.view.removeFromSuperview()
-            self.removeFromParent()
+        container.animateOut { [weak self] in
+            self?.willMove(toParent: nil)
+            self?.view.removeFromSuperview()
+            self?.removeFromParent()
         }
     }
-
 }
 
 // MARK: - UICollectionViewDataSource

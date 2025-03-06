@@ -21,4 +21,23 @@ extension UIView {
         self.layer.shadowOpacity = shadowOpacity
         self.layer.shadowRadius = shadowRadius
     }
+    
+    func animateIn() {
+        self.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        self.alpha = 0
+
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+            self.transform = .identity
+            self.alpha = 1
+        }, completion: nil)
+    }
+
+    func animateOut(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.5, animations: {
+            self.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+            self.alpha = 0
+        }) { _ in
+            completion()
+        }
+    }
 }
