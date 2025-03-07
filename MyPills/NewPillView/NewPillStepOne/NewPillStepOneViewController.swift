@@ -11,7 +11,12 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Public Properties
     static let stepOne = "NewPillStepOneCell"
-
+    
+    var pillData: PillModel?
+    
+    let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капля", "Таблетка", "Капсула", "Укол", "Пшик"]
+    var selectedUnit: String?
+    
     lazy var formTypesButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
@@ -26,17 +31,19 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     lazy var titleTextField: ClearableTextField = createTextField()
     lazy var dosageTextField: ClearableTextField = createTextField()
     
+    lazy var unitPickerView: UIPickerView = {
+        let pickerView = UIPickerView()
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        return pickerView
+    }()
+    
     // MARK: - Private Properties
     private lazy var titleLabel: UILabel = createLabel(text: "Название", textColor: .black, fontSize: 18)
     private lazy var dosageLabel: UILabel = createLabel(text: "Дозировка", textColor: .black, fontSize: 18)
     
-    private lazy var unitPickerView: UnitPickerManager = {
-        let pickerView = UnitPickerManager()
-        return pickerView
-    }()
-    
     private var iconSelectionVC: IconSelectionViewController?
-        
+    
     // MARK: - Initializers
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,7 +56,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         iconSelectionVC = IconSelectionViewController()
         iconSelectionVC?.selectedIcon = { [weak self] selectedImage in
             guard let self = self else { return }
-
+            
             UIView.transition(with: self.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
                 self.formTypesButton.setImage(selectedImage, for: .normal)
             }, completion: nil)
@@ -66,12 +73,17 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     
     @objc
     private func textFieldDidChange(_ textField: UITextField) {
-
+        updateNextButtonState()
     }
     
     // MARK: - Private Methods
     private func setupView() {
-        view.backgroundColor = .white
+        titleTextField.text = pillData?.title
+        dosageTextField.text = pillData?.dosage
+        formTypesButton.setImage(pillData?.selectedIcon, for: .normal)
+        if let selectedUnit = pillData?.selectedUnit, let index = unitPickerViewData.firstIndex(of: selectedUnit) {
+            unitPickerView.selectRow(index, inComponent: 0, animated: false)
+        }
         
         [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel, unitPickerView].forEach { view in
             self.view.addSubview(view)
@@ -91,7 +103,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
             
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleLabel.topAnchor.constraint(equalTo: formTypesButton.bottomAnchor, constant: 16),
-
+            
             titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
@@ -126,5 +138,51 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField
+    }
+    
+    private func updateNextButtonState() {
+        let isTitleFilled = !(titleTextField.text?.isEmpty ?? true)
+        let isDosageFilled = !(dosageTextField.text?.isEmpty ?? true)
+        let isEnabled = isTitleFilled && isDosageFilled
+        
+        if let addNewPillVC = parent as? AddNewPillViewController {
+            addNewPillVC.nextButton.isEnabled = isEnabled
+            addNewPillVC.nextButton.alpha = isEnabled ? 1.0 : 0.5
+        }
+    }
+}
+
+extension NewPillStepOneViewController: UIPickerViewDataSource {
+    // MARK: - UIPickerViewDataSource
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return unitPickerViewData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let label = (view as? UILabel) ?? UILabel()
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.textAlignment = .center
+        label.textColor = .dGray
+        label.text = unitPickerViewData[row]
+        return label
+    }
+}
+
+// MARK: - UIPickerViewDelegate
+extension NewPillStepOneViewController: UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedUnit = unitPickerViewData[row]
+        
+        if let addNewPillVC = parent as? AddNewPillViewController {
+            addNewPillVC.pillData.selectedUnit = selectedUnit
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return 60
     }
 }

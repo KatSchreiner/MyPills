@@ -10,7 +10,7 @@ import UIKit
 extension UIView {
     func applyShadow(
         cornerRadius: CGFloat = 8,
-        shadowColor: UIColor = .black,
+        shadowColor: UIColor = .dGray,
         shadowOffset: CGSize = CGSize(width: 0, height: 1),
         shadowOpacity: Float = 0.4,
         shadowRadius: CGFloat = 2.0

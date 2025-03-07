@@ -10,6 +10,7 @@ import UIKit
 final class AddNewPillViewController: UIViewController {
 
     // MARK: - Public Properties
+    var pillData = PillModel()
     
     // MARK: - Private Properties
     private lazy var progressView: UIProgressView = {
@@ -33,9 +34,9 @@ final class AddNewPillViewController: UIViewController {
     private var currentStep: AddPillStep = .stepOne
     private var currentChildVC: UIViewController?
 
-    private var selectedIntakeMethod: String?
-    private var selectedDays: [String] = []
-    private var reminderTime: Date?
+//    private var selectedIntakeMethod: String?
+//    private var selectedDays: [String] = []
+//    private var reminderTime: Date?
 
     // MARK: - View Life Cycles
     override func viewDidLoad() {
@@ -69,6 +70,14 @@ final class AddNewPillViewController: UIViewController {
         guard let currentIndex = AddPillStep.allCases.firstIndex(of: currentStep),
               currentIndex < AddPillStep.allCases.count - 1 else { return }
 
+        if let stepOneVC = currentChildVC as? NewPillStepOneViewController {
+            pillData.title = stepOneVC.titleTextField.text
+            pillData.dosage = stepOneVC.dosageTextField.text
+            pillData.selectedIcon = stepOneVC.formTypesButton.image(for: .normal)
+            let selectedRow = stepOneVC.unitPickerView.selectedRow(inComponent: 0)
+            pillData.selectedUnit = stepOneVC.unitPickerViewData[selectedRow]
+        }
+        
         currentStep = AddPillStep.allCases[currentIndex + 1]
         showStepViewController(for: currentStep, isMovingForward: true)
         updateProgress()
@@ -85,6 +94,9 @@ final class AddNewPillViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupNavigation()
 
+        nextButton.isEnabled = false
+        nextButton.alpha = 0.5
+        
         [progressView, backButton, nextButton, cancelButton, doneButton, containerView].forEach { [weak self] view in
             guard let self = self else { return }
             self.view.addSubview(view)
@@ -153,6 +165,7 @@ private extension AddNewPillViewController {
         switch step {
         case .stepOne:
             let stepView = NewPillStepOneViewController()
+            stepView.pillData = pillData
             newPillView = stepView
         case .stepTwo:
             let stepView = NewPillStepTwoViewController()

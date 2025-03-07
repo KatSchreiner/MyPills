@@ -37,8 +37,14 @@ class IconSelectionViewController: UIViewController {
         container.layer.cornerRadius = 16
         container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         container.alpha = 0
-        container.applyShadow()
         return container
+    }()
+    
+    private lazy var dimmingView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        view.alpha = 0
+        return view
     }()
     
     // MARK: - View Life Cycles
@@ -54,7 +60,10 @@ class IconSelectionViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    private func setupView() {        
+    private func setupView() {
+        view.addSubview(dimmingView)
+        dimmingView.frame = view.bounds
+        
         view.addSubview(container)
         container.translatesAutoresizingMaskIntoConstraints = false
         
@@ -62,8 +71,7 @@ class IconSelectionViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         addConstraint()
-        
-        container.animateIn()
+        animateIn()
     }
     
     private func addConstraint() {
@@ -79,12 +87,24 @@ class IconSelectionViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
     }
+    
+    func animateIn() {
+        UIView.animate(withDuration: 0.3) {
+            self.dimmingView.alpha = 1
+        }
+        container.animateIn()
+    }
 
     private func dismissContainer() {
         container.animateOut { [weak self] in
-            self?.willMove(toParent: nil)
-            self?.view.removeFromSuperview()
-            self?.removeFromParent()
+            // После завершения анимации контейнера, анимируем исчезновение dimming view
+            UIView.animate(withDuration: 0.3, animations: {
+                self?.dimmingView.alpha = 0
+            }) { _ in
+                self?.willMove(toParent: nil)
+                self?.view.removeFromSuperview()
+                self?.removeFromParent()
+            }
         }
     }
 }
