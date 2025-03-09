@@ -10,6 +10,8 @@ import UIKit
 class NewPillStepThreeViewController: UIViewController {
     static var stepThree = "NewPillStepThreeCell"
     
+    var pillData: PillModel?
+
     private lazy var dayButton: UIButton = {
         let dayButton = UIButton()
         dayButton.layer.cornerRadius = 20

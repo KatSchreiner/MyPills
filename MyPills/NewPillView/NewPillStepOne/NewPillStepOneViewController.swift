@@ -17,19 +17,8 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капля", "Таблетка", "Капсула", "Укол", "Пшик"]
     var selectedUnit: String?
     
-    lazy var formTypesButton: UIButton = {
-        let button = UIButton()
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.textAlignment = .center
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
-        button.adjustsImageWhenHighlighted = false
-        button.setImage(UIImage(named: "tablet"), for: .normal)
-        button.addTarget(self, action: #selector(didTapFormTypesButton), for: .touchUpInside)
-        return button
-    }()
-    
-    lazy var titleTextField: ClearableTextField = createTextField()
-    lazy var dosageTextField: ClearableTextField = createTextField()
+    lazy var titleTextField: UITextField = createTextField()
+    lazy var dosageTextField: UITextField = createTextField()
     
     lazy var unitPickerView: UIPickerView = {
         let pickerView = UIPickerView()
@@ -38,11 +27,21 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         return pickerView
     }()
     
+    lazy var formTypesButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        button.setImage(UIImage(named: "tablet"), for: .normal)
+        button.addTarget(self, action: #selector(didTapFormTypesButton), for: .touchUpInside)
+        return button
+    }()
+    
     // MARK: - Private Properties
     private lazy var titleLabel: UILabel = createLabel(text: "Название", textColor: .black, fontSize: 18)
     private lazy var dosageLabel: UILabel = createLabel(text: "Дозировка", textColor: .black, fontSize: 18)
     
-    private var iconSelectionVC: IconSelectionViewController?
+    private var iconSelectionVC = IconSelectionViewController()
     
     // MARK: - Initializers
     override func viewDidLoad() {
@@ -53,22 +52,15 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     // MARK: - IB Actions
     @objc
     private func didTapFormTypesButton() {
-        iconSelectionVC = IconSelectionViewController()
-        iconSelectionVC?.selectedIcon = { [weak self] selectedImage in
-            guard let self = self else { return }
-            
-            UIView.transition(with: self.formTypesButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                self.formTypesButton.setImage(selectedImage, for: .normal)
-            }, completion: nil)
+        let iconSelectionVC = IconSelectionViewController()
+
+        iconSelectionVC.selectedIcon = { [weak self] selectedIcon in
+            self?.formTypesButton.setImage(selectedIcon, for: .normal)
+            self?.pillData?.selectedIcon = selectedIcon 
         }
         
-        guard let iconSelectionVC = iconSelectionVC else { return }
-        
-        addChild(iconSelectionVC)
-        view.addSubview(iconSelectionVC.view)
-        iconSelectionVC.view.frame = view.bounds
-        iconSelectionVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
+        let navigationController = UINavigationController(rootViewController: iconSelectionVC)
+        present(navigationController, animated: true, completion: nil)
     }
     
     @objc
@@ -80,16 +72,21 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     private func setupView() {
         titleTextField.text = pillData?.title
         dosageTextField.text = pillData?.dosage
-        formTypesButton.setImage(pillData?.selectedIcon, for: .normal)
+        
+        formTypesButton.setImage(UIImage(named: "tablet"), for: .normal)
+        
+        if let selectedIcon = pillData?.selectedIcon {
+            formTypesButton.setImage(selectedIcon, for: .normal)
+        }
+        
         if let selectedUnit = pillData?.selectedUnit, let index = unitPickerViewData.firstIndex(of: selectedUnit) {
             unitPickerView.selectRow(index, inComponent: 0, animated: false)
         }
         
-        [titleTextField, formTypesButton, dosageTextField, titleLabel, dosageLabel, unitPickerView].forEach { view in
+        [formTypesButton, titleLabel, titleTextField, dosageLabel, dosageTextField, unitPickerView].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
-        self.view.clipsToBounds = false
         
         addConstraint()
     }
@@ -97,32 +94,30 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     private func addConstraint() {
         NSLayoutConstraint.activate([
             formTypesButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            formTypesButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            formTypesButton.widthAnchor.constraint(equalToConstant: 100),
-            formTypesButton.heightAnchor.constraint(equalToConstant: 100),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.topAnchor.constraint(equalTo: formTypesButton.bottomAnchor, constant: 16),
-            
-            titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            formTypesButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+
+            titleLabel.topAnchor.constraint(equalTo: formTypesButton.bottomAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+
+            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             titleTextField.heightAnchor.constraint(equalToConstant: 60),
-            
-            dosageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            dosageLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
-            
-            dosageTextField.topAnchor.constraint(equalTo: dosageLabel.bottomAnchor, constant: 16),
-            dosageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+
+            dosageLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
+            dosageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+
+            dosageTextField.topAnchor.constraint(equalTo: dosageLabel.bottomAnchor, constant: 10),
+            dosageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dosageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dosageTextField.heightAnchor.constraint(equalToConstant: 60),
-            dosageTextField.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-            
-            unitPickerView.widthAnchor.constraint(equalToConstant: 150),
-            unitPickerView.leadingAnchor.constraint(equalTo: dosageTextField.trailingAnchor, constant: 16),
-            unitPickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            unitPickerView.centerYAnchor.constraint(equalTo: dosageTextField.centerYAnchor)
+
+            unitPickerView.widthAnchor.constraint(equalToConstant: 180),
+            unitPickerView.topAnchor.constraint(equalTo: dosageTextField.bottomAnchor),
+            unitPickerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
+
     
     private func createLabel(text: String, textColor: UIColor, fontSize: CGFloat) -> UILabel {
         let label = UILabel()
@@ -133,9 +128,20 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         return label
     }
     
-    private func createTextField() -> ClearableTextField {
-        let textField = ClearableTextField()
+    private func createTextField() -> UITextField {
+        let textField = UITextField()
+        textField.layer.cornerRadius = 8
+        textField.backgroundColor = .lGray
+        textField.textColor = .dGray
+        textField.textAlignment = .left
         textField.delegate = self
+        textField.isUserInteractionEnabled = true
+        
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 60))
+        textField.leftViewMode = .always
+        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 60))
+        textField.rightViewMode = .always
+        
         textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }

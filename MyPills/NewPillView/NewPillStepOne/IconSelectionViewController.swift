@@ -10,17 +10,27 @@ import UIKit
 class IconSelectionViewController: UIViewController {
     // MARK: - Public Properties
     var images: [UIImage?] = []
-    private let imagesFormTypes = [UIImage(named: "capsule"), UIImage(named: "tablet"), UIImage(named: "drops"), UIImage(named: "syrup"), UIImage(named: "injection"), UIImage(named: "ointment"), UIImage(named: "spray"), UIImage(named: "nasalspray"), UIImage(named: "vitamins")]
+    private let imagesFormTypes = [
+        UIImage(named: "capsule"),
+        UIImage(named: "tablet"),
+        UIImage(named: "drops"),
+        UIImage(named: "syrup"),
+        UIImage(named: "injection"),
+        UIImage(named: "ointment"),
+        UIImage(named: "spray"),
+        UIImage(named: "nasalspray"),
+        UIImage(named: "vitamins")
+    ]
     
     var selectedIcon: ((UIImage?) -> Void)?
     
     // MARK: - Private Properties
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 70, height: 70)
+        layout.itemSize = CGSize(width: 80, height: 80)
         layout.minimumInteritemSpacing = 18
         layout.minimumLineSpacing = 18
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 20, left: 25, bottom: 20, right: 25)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
@@ -30,82 +40,29 @@ class IconSelectionViewController: UIViewController {
         collectionView.backgroundColor = .clear
         return collectionView
     }()
-    
-    private lazy var container: UIView = {
-        let container = UIView()
-        container.backgroundColor = .lGray
-        container.layer.cornerRadius = 16
-        container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        container.alpha = 0
-        return container
-    }()
-    
-    private lazy var dimmingView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-        view.alpha = 0
-        return view
-    }()
-    
+
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let touch = touches.first, touch.view == self.view {
-            dismissContainer()
-        }
-    }
-    
     // MARK: - Private Methods
     private func setupView() {
-        view.addSubview(dimmingView)
-        dimmingView.frame = view.bounds
-        
-        view.addSubview(container)
-        container.translatesAutoresizingMaskIntoConstraints = false
-        
-        container.addSubview(collectionView)
+        view.backgroundColor = .white
+        view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         addConstraint()
-        animateIn()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            container.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
-            container.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6),
-            container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
-            collectionView.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
-            collectionView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-    }
-    
-    func animateIn() {
-        UIView.animate(withDuration: 0.3) {
-            self.dimmingView.alpha = 1
-        }
-        container.animateIn()
-    }
-
-    private func dismissContainer() {
-        container.animateOut { [weak self] in
-            // После завершения анимации контейнера, анимируем исчезновение dimming view
-            UIView.animate(withDuration: 0.3, animations: {
-                self?.dimmingView.alpha = 0
-            }) { _ in
-                self?.willMove(toParent: nil)
-                self?.view.removeFromSuperview()
-                self?.removeFromParent()
-            }
-        }
     }
 }
 
@@ -127,14 +84,7 @@ extension IconSelectionViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedImage = imagesFormTypes[indexPath.item]
         
-        UIView.animate(withDuration: 0.5, animations: {
-            self.container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-            self.container.alpha = 0
-        }) { _ in
-            self.selectedIcon?(selectedImage)
-            self.willMove(toParent: nil)
-            self.view.removeFromSuperview()
-            self.removeFromParent()
-        }
+        selectedIcon?(selectedImage)
+        dismiss(animated: true)
     }
 }

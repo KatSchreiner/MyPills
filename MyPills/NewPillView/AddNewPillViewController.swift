@@ -34,17 +34,13 @@ final class AddNewPillViewController: UIViewController {
     private var currentStep: AddPillStep = .stepOne
     private var currentChildVC: UIViewController?
 
-//    private var selectedIntakeMethod: String?
-//    private var selectedDays: [String] = []
-//    private var reminderTime: Date?
-
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         showStepViewController(for: currentStep, isMovingForward: true)
     }
-
+    
     // MARK: - IB Actions
     @objc
     private func didTapAddNewPill() {
@@ -97,7 +93,7 @@ final class AddNewPillViewController: UIViewController {
         nextButton.isEnabled = false
         nextButton.alpha = 0.5
         
-        [progressView, backButton, nextButton, cancelButton, doneButton, containerView].forEach { [weak self] view in
+        [progressView, containerView, backButton, nextButton, cancelButton, doneButton].forEach { [weak self] view in
             guard let self = self else { return }
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -121,9 +117,10 @@ final class AddNewPillViewController: UIViewController {
             progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             containerView.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 20),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             containerView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -20),
+            containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
             
             backButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

@@ -10,6 +10,8 @@ import UIKit
 class NewPillStepTwoViewController: UIViewController {
     static var stepTwo = "NewPillStepTwoCell"
     
+    var pillData: PillModel?
+
     private lazy var timePicker: CustomTimePicker = {
         let timePicker = CustomTimePicker()
         return timePicker
