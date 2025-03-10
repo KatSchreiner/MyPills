@@ -22,6 +22,7 @@ class NewPillStepTwoViewController: UIViewController {
     }()
     
     private var timePickers: [CustomTimePicker] = []
+    private var removeButtons: [UIButton] = []
     
     private lazy var addTimePickerButton: UIButton = {
         let button = UIButton()
@@ -54,6 +55,20 @@ class NewPillStepTwoViewController: UIViewController {
         addNewTimePicker()
     }
     
+    @objc
+    private func didTapRemoveTimePicker(_ sender: UIButton) {
+        guard let index = removeButtons.firstIndex(of: sender) else { return }
+        
+        let timePickerToRemove = timePickers[index]
+        timePickers.remove(at: index)
+        removeButtons.remove(at: index)
+                
+        timePickerToRemove.removeFromSuperview()
+        sender.removeFromSuperview()
+        
+        updateConstraintsAfterRemoval()
+    }
+    
     private func setupView() {
         view.backgroundColor = .white
         
@@ -72,10 +87,10 @@ class NewPillStepTwoViewController: UIViewController {
             timePickerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             
             addTimePickerButton.centerYAnchor.constraint(equalTo: timePickerLabel.centerYAnchor),
-            addTimePickerButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            addTimePickerButton.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
-        pickerViewTopConstraint = pickerView.topAnchor.constraint(equalTo: addTimePickerButton.bottomAnchor, constant: 20)
+        pickerViewTopConstraint = pickerView.topAnchor.constraint(equalTo: addTimePickerButton.bottomAnchor)
         pickerViewTopConstraint?.isActive = true
         
         pickerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -89,13 +104,25 @@ class NewPillStepTwoViewController: UIViewController {
         view.addSubview(newTimePicker)
         newTimePicker.translatesAutoresizingMaskIntoConstraints = false
         
+        let removeButton = UIButton(type: .system)
+        removeButton.setImage(UIImage(systemName: "minus"), for: .normal)
+        removeButton.frame = CGRect(x: 0, y: 0, width: 70, height: 70)
+        removeButton.tintColor = .lRed
+        removeButton.addTarget(self, action: #selector(didTapRemoveTimePicker(_:)), for: .touchUpInside)
+        view.addSubview(removeButton)
+        removeButtons.append(removeButton)
+        removeButton.translatesAutoresizingMaskIntoConstraints = false
+        
         let lastPicker: CustomTimePicker? = timePickers.count > 1 ? timePickers[timePickers.count - 2] : nil
         
         NSLayoutConstraint.activate([
             newTimePicker.topAnchor.constraint(equalTo: lastPicker?.bottomAnchor ?? addTimePickerButton.bottomAnchor, constant: 20),
             newTimePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             newTimePicker.heightAnchor.constraint(equalToConstant: 60),
-            newTimePicker.widthAnchor.constraint(equalToConstant: 180)
+            newTimePicker.widthAnchor.constraint(equalToConstant: 180),
+            
+            removeButton.centerYAnchor.constraint(equalTo: newTimePicker.centerYAnchor),
+            removeButton.leadingAnchor.constraint(equalTo: newTimePicker.trailingAnchor, constant: 10)
         ])
         
         updatePickerViewConstraint()
@@ -110,11 +137,22 @@ class NewPillStepTwoViewController: UIViewController {
         pickerViewTopConstraint?.isActive = false
         
         if let lastPicker = timePickers.last {
-            pickerViewTopConstraint = pickerView.topAnchor.constraint(equalTo: lastPicker.bottomAnchor, constant: 20)
+            pickerViewTopConstraint = pickerView.topAnchor.constraint(equalTo: lastPicker.bottomAnchor)
             pickerViewTopConstraint?.isActive = true
         }
         
         view.layoutIfNeeded()
+    }
+    
+    private func updateConstraintsAfterRemoval() {
+        for (index, timePicker) in timePickers.enumerated() {
+            let previousPicker: CustomTimePicker? = index > 0 ? timePickers[index - 1] : nil
+            
+            NSLayoutConstraint.activate([
+                timePicker.topAnchor.constraint(equalTo: previousPicker?.bottomAnchor ?? addTimePickerButton.bottomAnchor, constant: 20)
+            ])
+        }
+        updatePickerViewConstraint()
     }
 }
 
