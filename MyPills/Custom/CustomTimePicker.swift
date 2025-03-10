@@ -51,7 +51,7 @@ class CustomTimePicker: UIPickerView {
         self.selectRow(currentMinute, inComponent: 2, animated: true)
     }
     
-    private func createLabelTime(with text: String, font: UIFont = .systemFont(ofSize: 17), textColor: UIColor = .dGray) -> UILabel {
+    private func createLabelTime(with text: String, font: UIFont = .systemFont(ofSize: 20), textColor: UIColor = .dGray) -> UILabel {
         let label = UILabel()
         label.text = text
         label.font = font

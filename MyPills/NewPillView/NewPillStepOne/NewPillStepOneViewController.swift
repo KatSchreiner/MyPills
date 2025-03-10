@@ -30,16 +30,14 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     lazy var formTypesButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.textAlignment = .center
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         button.setImage(UIImage(named: "tablet"), for: .normal)
         button.addTarget(self, action: #selector(didTapFormTypesButton), for: .touchUpInside)
         return button
     }()
     
     // MARK: - Private Properties
-    private lazy var titleLabel: UILabel = createLabel(text: "Название", textColor: .black, fontSize: 18)
-    private lazy var dosageLabel: UILabel = createLabel(text: "Дозировка", textColor: .black, fontSize: 18)
+    private lazy var titleLabel: UILabel = createLabel(text: "Название", textColor: .black, fontSize: 20)
+    private lazy var dosageLabel: UILabel = createLabel(text: "Дозировка", textColor: .black, fontSize: 20)
     
     private var iconSelectionVC = IconSelectionViewController()
     
@@ -125,6 +123,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         label.text = text
         label.textColor = textColor
         label.textAlignment = .left
+        label.textColor = .dGray
         return label
     }
     
@@ -170,7 +169,7 @@ extension NewPillStepOneViewController: UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let label = (view as? UILabel) ?? UILabel()
-        label.font = UIFont.systemFont(ofSize: 18)
+        label.font = UIFont.systemFont(ofSize: 20)
         label.textAlignment = .center
         label.textColor = .dGray
         label.text = unitPickerViewData[row]
