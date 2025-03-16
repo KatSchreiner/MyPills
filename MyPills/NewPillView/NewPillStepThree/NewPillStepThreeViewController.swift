@@ -10,6 +10,8 @@ import UIKit
 class NewPillStepThreeViewController: UIViewController {
     static var stepThree = "NewPillStepThreeCell"
     
+    var model = PillStepThreeModel()
+    
     private lazy var repeatLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 20, weight: .regular)
@@ -21,7 +23,6 @@ class NewPillStepThreeViewController: UIViewController {
     
     private lazy var dayButtons: [UIButton] = []
     private let daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
-    private var selectedDays: Set<Int> = []
     
     private lazy var dayButtonStackView: UIStackView = {
         let dayButtonStackView = UIStackView()
@@ -31,10 +32,11 @@ class NewPillStepThreeViewController: UIViewController {
         
         for (index, day) in daysOfWeek.enumerated() {
             let button = UIButton()
-            button.layer.cornerRadius = 20
+            button.layer.cornerRadius = 8
             button.backgroundColor = .lGray
             button.setTitle(day, for: .normal)
             button.setTitleColor(.gray, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
             button.tag = index
             button.addTarget(self, action: #selector(didTapDayButton), for: .touchUpInside)
             dayButtons.append(button)
@@ -67,23 +69,21 @@ class NewPillStepThreeViewController: UIViewController {
         return reminderStackView
     }()
     
-    private var isReminderEnabled: Bool = false
-    private var isSelectedDay: Bool = false
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        loadData()
     }
     
     @objc
     private func didTapDayButton(sender: UIButton) {
         let index = sender.tag
-        if selectedDays.contains(index) {
-            selectedDays.remove(index)
+        if model.selectedDays.contains(index) {
+            model.selectedDays.remove(index)
             sender.backgroundColor = .lGray
             sender.setTitleColor(.gray, for: .normal)
         } else {
-            selectedDays.insert(index)
+            model.selectedDays.insert(index)
             sender.backgroundColor = .dBlue
             sender.setTitleColor(.lGray, for: .normal)
         }
@@ -91,7 +91,7 @@ class NewPillStepThreeViewController: UIViewController {
     
     @objc
     private func didToggleReminderSwitch(sender: UISwitch) {
-        isReminderEnabled = sender.isOn
+        model.isReminderEnabled = sender.isOn
     }
     
     private func setupView() {
@@ -111,14 +111,27 @@ class NewPillStepThreeViewController: UIViewController {
             repeatLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             
             dayButtonStackView.topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 20),
-            dayButtonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            dayButtonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            dayButtonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dayButtonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dayButtonStackView.heightAnchor.constraint(equalToConstant: 40),
-            dayButtonStackView.widthAnchor.constraint(equalToConstant: 50),
             
             reminderStackView.topAnchor.constraint(equalTo: dayButtonStackView.bottomAnchor, constant: 30),
             reminderStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
+    private func loadData() {
+        for button in dayButtons {
+            let index = button.tag
+            if model.selectedDays.contains(index) {
+                button.backgroundColor = .dBlue
+                button.setTitleColor(.lGray, for: .normal)
+            } else {
+                button.backgroundColor = .lGray
+                button.setTitleColor(.dGray, for: .normal)
+            }
+        }
+        
+        reminderSwitch.isOn = model.isReminderEnabled
+    }
 }

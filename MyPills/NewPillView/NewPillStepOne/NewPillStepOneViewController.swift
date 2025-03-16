@@ -188,7 +188,7 @@ extension NewPillStepOneViewController: UIPickerViewDelegate {
         selectedUnit = unitPickerViewData[row]
         
         if let addNewPillVC = parent as? AddNewPillViewController {
-            addNewPillVC.pillStepOneModel?.selectedUnit = selectedUnit
+            addNewPillVC.pillStepOneModel.selectedUnit = selectedUnit
         }
     }
     

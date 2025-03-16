@@ -10,8 +10,10 @@ import UIKit
 final class AddNewPillViewController: UIViewController {
 
     // MARK: - Public Properties
-    var pillStepOneModel: PillStepOneModel? = PillStepOneModel()
-    var pillStepTwoModel: PillStepTwoModel? = PillStepTwoModel()
+    var pillStepOneModel = PillStepOneModel()
+    var pillStepTwoModel = PillStepTwoModel()
+    var pillStepThreeModel = PillStepThreeModel()
+
     
     // MARK: - Private Properties
     private lazy var progressView: UIProgressView = {
@@ -29,8 +31,8 @@ final class AddNewPillViewController: UIViewController {
     
     lazy var nextButton: UIButton = createControlButton(title: "Далее", action: #selector(goToNextStep))
     private lazy var backButton: UIButton = createControlButton(title: "Назад", action: #selector(goToPreviousStep))
-    private lazy var doneButton: UIButton = createControlButton(title: "Готово", action: #selector(didTapAddNewPill))
-    private lazy var cancelButton: UIButton = createControlButton(title: "Отмена", action: #selector(didTapCancelNewPill))
+    private lazy var doneButton: UIButton = createControlButton(title: "Готово", action: #selector(didTapDoneButton))
+    private lazy var cancelButton: UIButton = createControlButton(title: "Отмена", action: #selector(didTapCancelButton))
     
     private var currentStep: AddPillStep = .stepOne
     private var currentChildVC: UIViewController?
@@ -44,12 +46,26 @@ final class AddNewPillViewController: UIViewController {
     
     // MARK: - IB Actions
     @objc
-    private func didTapAddNewPill() {
+    private func didTapDoneButton() {
+        moveToStepThree()
+        
+        print("Данные переданы:")
+        print("Иконка: \(pillStepOneModel.selectedIcon?.description ?? "nil")")
+        print("Название лекарства: \(pillStepOneModel.title ?? "nil")")
+        print("Дозировка: \(pillStepOneModel.dosage ?? "nil")")
+        print("Единица измерения: \(pillStepOneModel.selectedUnit ?? "nil")")
+        
+        print("Время приема: \(String(describing: pillStepTwoModel.selectedTimes))")
+        print("Как принимать: \(pillStepTwoModel.selectedOption ?? "nil")")
+        
+        print("Выбранные дни: \(pillStepThreeModel.selectedDays)")
+        print("Напомнить: \(pillStepThreeModel.isReminderEnabled)")
+        
         navigationController?.popViewController(animated: true)
     }
     
     @objc
-    private func didTapCancelNewPill() {
+    private func didTapCancelButton() {
         navigationController?.popViewController(animated: true)
     }
     
@@ -71,8 +87,6 @@ final class AddNewPillViewController: UIViewController {
             moveToStepOne()
         } else if currentStep == .stepTwo {
             moveToStepTwo()
-        } else {
-            moveToStepThree()
         }
         
         currentStep = AddPillStep.allCases[currentIndex + 1]
@@ -156,37 +170,26 @@ final class AddNewPillViewController: UIViewController {
     
     func moveToStepOne() {
         if let stepOneVC = currentChildVC as? NewPillStepOneViewController {
-            pillStepOneModel?.title = stepOneVC.titleTextField.text
-            pillStepOneModel?.dosage = stepOneVC.dosageTextField.text
-            pillStepOneModel?.selectedIcon = stepOneVC.formTypesButton.image(for: .normal)
-            
+            pillStepOneModel.title = stepOneVC.titleTextField.text
+            pillStepOneModel.dosage = stepOneVC.dosageTextField.text
+            pillStepOneModel.selectedIcon = stepOneVC.formTypesButton.image(for: .normal)
             let selectedRow = stepOneVC.unitPickerView.selectedRow(inComponent: 0)
-            pillStepOneModel?.selectedUnit = stepOneVC.unitPickerViewData[selectedRow]
-            
-            print("Иконка: \(pillStepOneModel?.selectedIcon?.description ?? "nil")")
-            print("Название лекарства: \(pillStepOneModel?.title ?? "nil")")
-            print("Дозировка: \(pillStepOneModel?.dosage ?? "nil")")
-            print("Единица измерения: \(pillStepOneModel?.selectedUnit ?? "nil")")
+            pillStepOneModel.selectedUnit = stepOneVC.unitPickerViewData[selectedRow]
         }
     }
     
     func moveToStepTwo() {
         if let stepTwoVC = currentChildVC as? NewPillStepTwoViewController {
-            pillStepTwoModel?.selectedTimes = stepTwoVC.selectedTimes
-            
-            print("Сохраненные времена: \(stepTwoVC.selectedTimes)")
-
+            pillStepTwoModel.selectedTimes = stepTwoVC.selectedTimes
             let selectedRow = stepTwoVC.pickerView.selectedRow(inComponent: 0)
-            pillStepTwoModel?.selectedOption = stepTwoVC.pickerData[selectedRow]
-            
-            print("Время приема: \(String(describing: pillStepTwoModel?.selectedTimes))")
-            print("Как принимать: \(pillStepTwoModel?.selectedOption ?? "nil")")
+            pillStepTwoModel.selectedOption = stepTwoVC.pickerData[selectedRow]
         }
     }
     
     func moveToStepThree() {
         if let stepThreeVC = currentChildVC as? NewPillStepThreeViewController {
-            print("Передача данных третьего шага:")
+            pillStepThreeModel.selectedDays = stepThreeVC.model.selectedDays
+            pillStepThreeModel.isReminderEnabled = stepThreeVC.model.isReminderEnabled
         }
     }
 }
@@ -198,16 +201,17 @@ private extension AddNewPillViewController {
         
         switch step {
         case .stepOne:
-            let stepView = NewPillStepOneViewController()
-            stepView.pillStepOneModel = pillStepOneModel
-            newPillView = stepView
+            let stepOne = NewPillStepOneViewController()
+            stepOne.pillStepOneModel = pillStepOneModel
+            newPillView = stepOne
         case .stepTwo:
-            let stepView = NewPillStepTwoViewController()
-            stepView.pillStepTwoModel = pillStepTwoModel
-            newPillView = stepView
+            let stepTwo = NewPillStepTwoViewController()
+            stepTwo.pillStepTwoModel = pillStepTwoModel
+            newPillView = stepTwo
         case .stepThree:
-            let stepView = NewPillStepThreeViewController()
-            newPillView = stepView
+            let stepThree = NewPillStepThreeViewController()
+            stepThree.model = pillStepThreeModel
+            newPillView = stepThree
         }
         
         addContainerStepView(basicView: newPillView, isMovingForward: isMovingForward)
