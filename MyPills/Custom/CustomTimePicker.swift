@@ -26,7 +26,6 @@ class CustomTimePicker: UIPickerView {
         
         populateHours()
         populateMinutes()
-        setCurrentTime()
     }
     
     private func populateHours() {
@@ -40,15 +39,14 @@ class CustomTimePicker: UIPickerView {
             minutes.append(String(format: "%02d", minute))
         }
     }
-    
-    private func setCurrentTime() {
-        let currentDate = Date()
-        let calendar = Calendar.current
-        let currentHour = calendar.component(.hour, from: currentDate)
-        let currentMinute = calendar.component(.minute, from: currentDate)
-        
-        self.selectRow(currentHour, inComponent: 0, animated: true)
-        self.selectRow(currentMinute, inComponent: 2, animated: true)
+
+    func setTime(hour: String, minute: String) {
+        if let hourIndex = hours.firstIndex(of: hour) {
+            self.selectRow(hourIndex, inComponent: 0, animated: false)
+        }
+        if let minuteIndex = minutes.firstIndex(of: minute) {
+            self.selectRow(minuteIndex, inComponent: 2, animated: false)
+        }
     }
     
     private func createLabelTime(with text: String, font: UIFont = .systemFont(ofSize: 20), textColor: UIColor = .dGray) -> UILabel {

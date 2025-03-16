@@ -8,10 +8,24 @@
 import UIKit
 
 class NewPillStepTwoViewController: UIViewController {
+    // MARK: - Public Properties
     static var stepTwo = "NewPillStepTwoCell"
     
-    var pillData: PillModel?
+    var pillStepTwoModel: PillStepTwoModel?
     
+    var selectedTimes: [(hour: String, minute: String)] = []
+    
+    var selectedOption: String?
+    let pickerData = ["Не зависит от еды", "До еды", "Во время еды", "После еды"]
+
+    lazy var pickerView: UIPickerView = {
+        let pickerView = UIPickerView()
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        return pickerView
+    }()
+    
+    // MARK: - Private Properties
     private lazy var timePickerLabel: UILabel = {
         let label = UILabel()
         label.text = "Время приема"
@@ -21,9 +35,6 @@ class NewPillStepTwoViewController: UIViewController {
         return label
     }()
     
-    private var timePickers: [CustomTimePicker] = []
-    private var removeButtons: [UIButton] = []
-    
     private lazy var addTimePickerButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
@@ -32,24 +43,19 @@ class NewPillStepTwoViewController: UIViewController {
         return button
     }()
     
-    private lazy var pickerView: UIPickerView = {
-        let pickerView = UIPickerView()
-        pickerView.delegate = self
-        pickerView.dataSource = self
-        return pickerView
-    }()
-    
     private var pickerViewTopConstraint: NSLayoutConstraint?
+    private var timePickers: [CustomTimePicker] = []
+    private var removeButtons: [UIButton] = []
     
-    private let pickerData = ["Не зависит от еды", "До еды", "Во время еды", "После еды"]
-    var selectedOption: String?
-    
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        loadData()
         addNewTimePicker()
     }
-    
+
+    // MARK: - IB Actions
     @objc
     private func didTapAddTimePicker() {
         addNewTimePicker()
@@ -58,26 +64,32 @@ class NewPillStepTwoViewController: UIViewController {
     @objc
     private func didTapRemoveTimePicker(_ sender: UIButton) {
         guard let index = removeButtons.firstIndex(of: sender) else { return }
-        
+
         let timePickerToRemove = timePickers[index]
         timePickers.remove(at: index)
         removeButtons.remove(at: index)
-                
+                        
         timePickerToRemove.removeFromSuperview()
         sender.removeFromSuperview()
         
         updateConstraintsAfterRemoval()
+        
+        if timePickers.count < 2 {
+            sender.isHidden = true
+        }
     }
     
+    // MARK: - Public Methods
+    
+    // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .white
-        
+                
         [timePickerLabel, addTimePickerButton, pickerView].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        configurePicker()
         addInitialConstraints()
     }
     
@@ -124,15 +136,12 @@ class NewPillStepTwoViewController: UIViewController {
             removeButton.centerYAnchor.constraint(equalTo: newTimePicker.centerYAnchor),
             removeButton.leadingAnchor.constraint(equalTo: newTimePicker.trailingAnchor, constant: 10)
         ])
-        
+
         updatePickerViewConstraint()
+        
+        removeButton.isHidden = timePickers.count < 2
     }
-    
-    private func configurePicker() {
-        pickerView.selectRow(0, inComponent: 0, animated: true)
-        selectedOption = pickerData[0]
-    }
-    
+
     private func updatePickerViewConstraint() {
         pickerViewTopConstraint?.isActive = false
         
@@ -154,8 +163,16 @@ class NewPillStepTwoViewController: UIViewController {
         }
         updatePickerViewConstraint()
     }
+    
+    private func loadData() {
+        
+        if let selectedOption = pillStepTwoModel?.selectedOption, let index = pickerData.firstIndex(of: selectedOption) {
+            pickerView.selectRow(index, inComponent: 0, animated: false)
+        }
+    }
 }
 
+// MARK: - UIPickerViewDataSource
 extension NewPillStepTwoViewController: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return pickerData.count
@@ -175,9 +192,11 @@ extension NewPillStepTwoViewController: UIPickerViewDataSource {
     }
 }
 
+// MARK: - UIPickerViewDelegate
 extension NewPillStepTwoViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedOption = pickerData[row]
+        pillStepTwoModel?.selectedOption = selectedOption
     }
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {

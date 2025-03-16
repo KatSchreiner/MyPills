@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct PillModel {
+struct PillStepOneModel {
     var title: String?
     var dosage: String?
     var selectedIcon: UIImage?

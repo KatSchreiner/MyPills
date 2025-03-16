@@ -12,7 +12,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Public Properties
     static let stepOne = "NewPillStepOneCell"
     
-    var pillData: PillModel?
+    var pillStepOneModel: PillStepOneModel?
     
     let unitPickerViewData = ["мл", "мг", "мкг", "г", "%", "мг/мл", "МЕ", "Капля", "Таблетка", "Капсула", "Укол", "Пшик"]
     var selectedUnit: String?
@@ -41,7 +41,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     
     private var iconSelectionVC = IconSelectionViewController()
     
-    // MARK: - Initializers
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -54,7 +54,7 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
 
         iconSelectionVC.selectedIcon = { [weak self] selectedIcon in
             self?.formTypesButton.setImage(selectedIcon, for: .normal)
-            self?.pillData?.selectedIcon = selectedIcon 
+            self?.pillStepOneModel?.selectedIcon = selectedIcon 
         }
         
         let navigationController = UINavigationController(rootViewController: iconSelectionVC)
@@ -68,18 +68,11 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Private Methods
     private func setupView() {
-        titleTextField.text = pillData?.title
-        dosageTextField.text = pillData?.dosage
+        view.backgroundColor = .white
         
         formTypesButton.setImage(UIImage(named: "tablet"), for: .normal)
         
-        if let selectedIcon = pillData?.selectedIcon {
-            formTypesButton.setImage(selectedIcon, for: .normal)
-        }
-        
-        if let selectedUnit = pillData?.selectedUnit, let index = unitPickerViewData.firstIndex(of: selectedUnit) {
-            unitPickerView.selectRow(index, inComponent: 0, animated: false)
-        }
+        loadData()
         
         [formTypesButton, titleLabel, titleTextField, dosageLabel, dosageTextField, unitPickerView].forEach { view in
             self.view.addSubview(view)
@@ -115,7 +108,6 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
             unitPickerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
-
     
     private func createLabel(text: String, textColor: UIColor, fontSize: CGFloat) -> UILabel {
         let label = UILabel()
@@ -143,6 +135,19 @@ class NewPillStepOneViewController: UIViewController, UITextFieldDelegate {
         
         textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField
+    }
+    
+    private func loadData() {
+        titleTextField.text = pillStepOneModel?.title
+        dosageTextField.text = pillStepOneModel?.dosage
+        
+        if let selectedIcon = pillStepOneModel?.selectedIcon {
+            formTypesButton.setImage(selectedIcon, for: .normal)
+        }
+        
+        if let selectedUnit = pillStepOneModel?.selectedUnit, let index = unitPickerViewData.firstIndex(of: selectedUnit) {
+            unitPickerView.selectRow(index, inComponent: 0, animated: false)
+        }
     }
     
     private func updateNextButtonState() {
@@ -183,7 +188,7 @@ extension NewPillStepOneViewController: UIPickerViewDelegate {
         selectedUnit = unitPickerViewData[row]
         
         if let addNewPillVC = parent as? AddNewPillViewController {
-            addNewPillVC.pillData.selectedUnit = selectedUnit
+            addNewPillVC.pillStepOneModel?.selectedUnit = selectedUnit
         }
     }
     
