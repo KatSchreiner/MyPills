@@ -9,6 +9,16 @@ import UIKit
 
 class MyPillsViewController: UIViewController {
     // MARK: - Public Properties
+    private var pills: [Pill] = []
+    
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(PillTableViewCell.self, forCellReuseIdentifier: PillTableViewCell.identifier)
+        tableView.dataSource = self
+        tableView.delegate = self
+        return tableView
+    }()
+    
     lazy var weeklyCalendarView: WeeklyCalendarView = {
         let view = WeeklyCalendarView()
         return view
@@ -57,6 +67,7 @@ class MyPillsViewController: UIViewController {
     @objc
     private func didTapAddPillButton() {
         let addNewPill = AddNewPillViewController()
+        addNewPill.delegate = self
         navigationController?.pushViewController(addNewPill, animated: true)
     }
     
@@ -90,7 +101,7 @@ class MyPillsViewController: UIViewController {
         
         weeklyCalendarView.delegate = self
         
-        [weeklyCalendarView, dateLabelBackground, dateLabel, addPillButton, bottomBorderView].forEach { view in
+        [weeklyCalendarView, dateLabelBackground, dateLabel, addPillButton, bottomBorderView, tableView].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -126,6 +137,11 @@ class MyPillsViewController: UIViewController {
             bottomBorderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomBorderView.heightAnchor.constraint(equalToConstant: 2),
             
+            tableView.topAnchor.constraint(equalTo: weeklyCalendarView.bottomAnchor, constant: 20),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: addPillButton.topAnchor, constant: -20),
+            
             addPillButton.widthAnchor.constraint(equalToConstant: 70),
             addPillButton.heightAnchor.constraint(equalToConstant: 70),
             addPillButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
@@ -149,6 +165,7 @@ class MyPillsViewController: UIViewController {
         dateFormatter.locale = Locale(identifier: "ru_RU")
         return dateFormatter.string(from: date)
     }
+
 }
 
 // MARK: - WeeklyCalendarViewDelegate
@@ -160,9 +177,26 @@ extension MyPillsViewController: WeeklyCalendarViewDelegate {
 }
 
 // MARK: - UITableViewDataSource
+extension MyPillsViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return pills.count
+    }
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: PillTableViewCell.identifier, for: indexPath) as! PillTableViewCell
+        let pill = pills[indexPath.row]
+        cell.configure(with: pill)
+        return cell
+    }
+}
 // MARK: – UITableViewDelegate
+extension MyPillsViewController: UITableViewDelegate {
+}
 
-// MARK: - UICollectionViewDataSource
-
-// MARK: – UICollectionViewDelegate
+// MARK: - AddNewPillDelegate
+extension MyPillsViewController: AddNewPillDelegate {
+    func didAddPill(_ pill: Pill) {
+        pills.append(pill)
+        tableView.reloadData()
+    }
+}

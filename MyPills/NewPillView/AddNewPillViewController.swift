@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol AddNewPillDelegate: AnyObject {
+    func didAddPill(_ pill: Pill)
+}
+
 final class AddNewPillViewController: UIViewController {
 
     // MARK: - Public Properties
@@ -14,6 +18,7 @@ final class AddNewPillViewController: UIViewController {
     var pillStepTwoModel = PillStepTwoModel()
     var pillStepThreeModel = PillStepThreeModel()
 
+    weak var delegate: AddNewPillDelegate?
     
     // MARK: - Private Properties
     private lazy var progressView: UIProgressView = {
@@ -48,6 +53,17 @@ final class AddNewPillViewController: UIViewController {
     @objc
     private func didTapDoneButton() {
         moveToStepThree()
+        
+        let pill = Pill(
+            icon: pillStepOneModel.selectedIcon,
+            name: pillStepOneModel.title ?? "",
+            dosage: Int(pillStepOneModel.dosage ?? "") ?? 0,
+            unit: pillStepOneModel.selectedUnit ?? "",
+            howToTake: pillStepTwoModel.selectedOption ?? "",
+            times: pillStepTwoModel.selectedTimes
+        )
+        
+        delegate?.didAddPill(pill)
         
         print("Данные переданы:")
         print("Иконка: \(pillStepOneModel.selectedIcon?.description ?? "nil")")
