@@ -68,7 +68,11 @@ class NewPillStepTwoViewController: UIViewController {
         let timePickerToRemove = timePickers[index]
         timePickers.remove(at: index)
         removeButtons.remove(at: index)
-                        
+              
+        if index < selectedTimes.count {
+            selectedTimes.remove(at: index)
+        }
+        
         timePickerToRemove.removeFromSuperview()
         sender.removeFromSuperview()
         
@@ -111,6 +115,7 @@ class NewPillStepTwoViewController: UIViewController {
     
     private func addNewTimePicker() {
         let newTimePicker = CustomTimePicker()
+        newTimePicker.timePickerDelegate = self
         timePickers.append(newTimePicker)
         
         view.addSubview(newTimePicker)
@@ -201,5 +206,12 @@ extension NewPillStepTwoViewController: UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         return 60
+    }
+}
+
+// MARK: - UIPickerViewDelegate
+extension NewPillStepTwoViewController: CustomTimePickerDelegate {
+    func didPickTime(hour: String, minute: String) {
+        selectedTimes.append((hour: hour, minute: minute))
     }
 }

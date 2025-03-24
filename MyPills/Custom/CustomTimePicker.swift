@@ -7,10 +7,16 @@
 
 import UIKit
 
+protocol CustomTimePickerDelegate: AnyObject {
+    func didPickTime(hour: String, minute: String)
+}
+
 class CustomTimePicker: UIPickerView {
     private var hours: [String] = []
     private var minutes: [String] = []
             
+    weak var timePickerDelegate: CustomTimePickerDelegate?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -47,6 +53,12 @@ class CustomTimePicker: UIPickerView {
         if let minuteIndex = minutes.firstIndex(of: minute) {
             self.selectRow(minuteIndex, inComponent: 2, animated: false)
         }
+    }
+    
+    private func notifyDelegate() {
+        let selectedHour = hours[self.selectedRow(inComponent: 0)]
+        let selectedMinute = minutes[self.selectedRow(inComponent: 2)]
+        timePickerDelegate?.didPickTime(hour: selectedHour, minute: selectedMinute)
     }
     
     private func createLabelTime(with text: String, font: UIFont = .systemFont(ofSize: 20), textColor: UIColor = .dGray) -> UILabel {
@@ -98,5 +110,9 @@ extension CustomTimePicker: UIPickerViewDelegate {
         case 2: return 30
         default: return 0
         }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        notifyDelegate()
     }
 }

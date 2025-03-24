@@ -63,7 +63,7 @@ class PillTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             pillTimeLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             pillTimeLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            pillTimeLabel.widthAnchor.constraint(equalToConstant: 60),
+            pillTimeLabel.widthAnchor.constraint(equalToConstant: 80),
             
             pillImageView.leadingAnchor.constraint(equalTo: pillTimeLabel.trailingAnchor, constant: 10),
             pillImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
