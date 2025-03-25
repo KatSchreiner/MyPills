@@ -84,10 +84,8 @@ class PillTableViewCell: UITableViewCell {
         ])
     }
     
-    func configure(with pill: Pill) {
-        let timesString = pill.times.map { "\($0.hour):\($0.minute)" }.joined(separator: ", ")
-        
-        pillTimeLabel.text = timesString
+    func configure(with pill: Pill, time: (hour: String, minute: String)) {
+        pillTimeLabel.text = "\(time.hour):\(time.minute)"
         pillImageView.image = pill.icon
         pillNameLabel.text = pill.name
         dosageLabel.text = "\(pill.dosage) \(pill.unit)"

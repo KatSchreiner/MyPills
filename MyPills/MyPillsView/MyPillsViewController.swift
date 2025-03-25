@@ -33,7 +33,7 @@ class MyPillsViewController: UIViewController {
     lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = UIFont.systemFont(ofSize: 20)
         return label
     }()
     
@@ -179,15 +179,36 @@ extension MyPillsViewController: WeeklyCalendarViewDelegate {
 // MARK: - UITableViewDataSource
 extension MyPillsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pills.count
+        return pills.flatMap { $0.times }.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PillTableViewCell.identifier, for: indexPath) as! PillTableViewCell
-        let pill = pills[indexPath.row]
-        cell.configure(with: pill)
+        
+        var allTimes: [(hour: String, minute: String)] = []
+        
+        for pill in self.pills {
+            allTimes.append(contentsOf: pill.times)
+        }
+        
+        let currentTime = allTimes[indexPath.row]
+        
+        var currentPill: Pill?
+        var timeIndex = 0
+        for pill in pills {
+            if timeIndex + pill.times.count > indexPath.row {
+                currentPill = pill
+                break
+            }
+            timeIndex += pill.times.count
+        }
+        
+        if let pill = currentPill {
+            cell.configure(with: pill, time: currentTime)
+        }
         return cell
     }
+    
 }
 // MARK: – UITableViewDelegate
 extension MyPillsViewController: UITableViewDelegate {
