@@ -77,7 +77,7 @@ class NewPillStepThreeViewController: UIViewController {
     
     @objc
     private func didTapDayButton(sender: UIButton) {
-        let index = sender.tag
+        let index = sender.tag + 1
         if model.selectedDays.contains(index) {
             model.selectedDays.remove(index)
             sender.backgroundColor = .lGray

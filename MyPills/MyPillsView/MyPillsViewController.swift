@@ -173,21 +173,35 @@ extension MyPillsViewController: WeeklyCalendarViewDelegate {
     func didSelectDate(_ date: Date) {
         selectedDate = date
         dateLabel.text = formatDate(selectedDate)
+        tableView.reloadData()
     }
 }
 
 // MARK: - UITableViewDataSource
 extension MyPillsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pills.flatMap { $0.times }.count
+        let filteredPills = pills.filter { pill in
+            let weekDay = (Calendar.current.component(.weekday, from: selectedDate) + 5) % 7 + 1
+            
+            let filteredPills = pills.filter { pill in
+                return pill.selectedDays.contains(weekDay)
+            }
+            return pill.selectedDays.contains(weekDay)
+        }
+
+        return filteredPills.flatMap { $0.times }.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PillTableViewCell.identifier, for: indexPath) as! PillTableViewCell
         
-        var allTimes: [(hour: String, minute: String)] = []
+        let weekDay = (Calendar.current.component(.weekday, from: selectedDate) + 5) % 7 + 1
+        let filteredPills = pills.filter { pill in
+            return pill.selectedDays.contains(weekDay)
+        }
         
-        for pill in self.pills {
+        var allTimes: [(hour: String, minute: String)] = []
+        for pill in filteredPills {
             allTimes.append(contentsOf: pill.times)
         }
         
@@ -195,7 +209,7 @@ extension MyPillsViewController: UITableViewDataSource {
         
         var currentPill: Pill?
         var timeIndex = 0
-        for pill in pills {
+        for pill in filteredPills {
             if timeIndex + pill.times.count > indexPath.row {
                 currentPill = pill
                 break

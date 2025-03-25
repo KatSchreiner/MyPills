@@ -41,7 +41,7 @@ final class AddNewPillViewController: UIViewController {
     
     private var currentStep: AddPillStep = .stepOne
     private var currentChildVC: UIViewController?
-
+    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,17 +55,20 @@ final class AddNewPillViewController: UIViewController {
         moveToStepThree()
         
         let pill = Pill(
+            id: UUID(),
             icon: pillStepOneModel.selectedIcon,
             name: pillStepOneModel.title ?? "",
             dosage: Int(pillStepOneModel.dosage ?? "") ?? 0,
             unit: pillStepOneModel.selectedUnit ?? "",
             howToTake: pillStepTwoModel.selectedOption ?? "",
-            times: pillStepTwoModel.selectedTimes
+            times: pillStepTwoModel.selectedTimes,
+            selectedDays: pillStepThreeModel.selectedDays
         )
         
         delegate?.didAddPill(pill)
         
         print("Данные переданы:")
+        print("ID лекарства: \(pill.id)")
         print("Иконка: \(pillStepOneModel.selectedIcon?.description ?? "nil")")
         print("Название лекарства: \(pillStepOneModel.title ?? "nil")")
         print("Дозировка: \(pillStepOneModel.dosage ?? "nil")")
