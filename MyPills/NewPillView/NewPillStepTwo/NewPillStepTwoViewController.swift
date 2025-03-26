@@ -85,10 +85,19 @@ class NewPillStepTwoViewController: UIViewController {
     
     // MARK: - Public Methods
     
+    func updateSelectedTimes() {
+        selectedTimes.removeAll()
+        for picker in timePickers { 
+            let hour = picker.hours[picker.selectedRow(inComponent: 0)]
+            let minute = picker.minutes[picker.selectedRow(inComponent: 2)]
+            selectedTimes.append((hour: hour, minute: minute))
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .white
-                
+        
         [timePickerLabel, addTimePickerButton, pickerView].forEach { view in
             self.view.addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false

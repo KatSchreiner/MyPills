@@ -199,7 +199,8 @@ final class AddNewPillViewController: UIViewController {
     
     func moveToStepTwo() {
         if let stepTwoVC = currentChildVC as? NewPillStepTwoViewController {
-            pillStepTwoModel.selectedTimes = stepTwoVC.selectedTimes
+            stepTwoVC.updateSelectedTimes()
+            pillStepTwoModel.selectedTimes = stepTwoVC.selectedTimes 
             let selectedRow = stepTwoVC.pickerView.selectedRow(inComponent: 0)
             pillStepTwoModel.selectedOption = stepTwoVC.pickerData[selectedRow]
         }
